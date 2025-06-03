@@ -107,20 +107,18 @@
 
         // Render patients in the table
         function renderPatients(patients) {
-            const tbody = document.querySelector('tbody');
+            const tbody = document.getElementById('patientTableBody');
             tbody.innerHTML = '';
             
             patients.forEach(patient => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${patient.id}</td>
                     <td>${patient.name}</td>
-                    <td>${patient.age || ''}</td>
-                    <td>${patient.gender || ''}</td>
-                    <td>
-                        <button onclick="selectPatient(${patient.id}, '${patient.name}')" class="action-button">Select</button>
-                        <button onclick="editPatient(${patient.id})" class="action-button">Edit</button>
-                        <button onclick="deletePatient(${patient.id})" class="action-button delete">Delete</button>
+                    <td>${patient.id}</td>
+                    <td class="actions">
+                        <button onclick="selectPatient('${patient.id}', '${patient.name}')" class="action-btn edit-btn">Select</button>
+                        <button onclick="editPatient('${patient.id}')" class="action-btn edit-btn">Edit</button>
+                        <button onclick="deletePatient('${patient.id}')" class="action-btn delete-btn">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -196,6 +194,15 @@
             const patient = { id, name };
             sessionStorage.setItem('selectedPatient', JSON.stringify(patient));
             window.location.href = 'index.html';
+        }
+
+        // Add show/hide functions for the add patient form
+        function showAddPatient() {
+            document.getElementById('addPatientForm').style.display = 'block';
+        }
+
+        function hideAddPatient() {
+            document.getElementById('addPatientForm').style.display = 'none';
         }
 
         // Initialize
