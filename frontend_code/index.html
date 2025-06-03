@@ -402,6 +402,7 @@
             </svg>
             Patients List
         </a>
+        <button id="exportExcelBtn" class="dashboard-btn" style="margin-bottom: 20px;">Export Patients to Excel</button>
         <div class="header">
             <h1>Patient Dashboard</h1>
             <p>Add or select a patient to begin</p>
@@ -458,8 +459,26 @@
         </div>
     </div>
 
-    <script>
-        // ... existing code ...
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script type="module">
+        // ... existing Firebase and patient management code ...
+        document.getElementById('exportExcelBtn').addEventListener('click', async () => {
+            const { getFirestore, collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+            const db = getFirestore(app);
+            const querySnapshot = await getDocs(collection(db, 'patients'));
+            const data = [];
+            querySnapshot.forEach(doc => {
+                data.push(doc.data());
+            });
+            if (data.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Patients");
+            XLSX.writeFile(wb, "patients.xlsx");
+        });
     </script>
 </body>
 </html>
