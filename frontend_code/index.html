@@ -186,6 +186,15 @@
                     addPatient();
                 });
             }
+            const selectBtn = document.querySelector('.select-button');
+            if (selectBtn) {
+                selectBtn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectPatient();
+                    }
+                });
+            }
         });
     </script>
     <style>
