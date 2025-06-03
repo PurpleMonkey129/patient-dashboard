@@ -4,6 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient List</title>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtAmUF5c_VY3eUXZQEyKN8oxM_zmj9mOs",
+            authDomain: "patient-dashboard-500d2.firebaseapp.com",
+            projectId: "patient-dashboard-500d2",
+            storageBucket: "patient-dashboard-500d2.firebasestorage.app",
+            messagingSenderId: "178852814723",
+            appId: "1:178852814723:web:b92ae5e5009a1a7e66e0b6"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make Firebase services available globally
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.deleteDoc = deleteDoc;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+    </script>
     <style>
         body { background: #f5f6fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
         .container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); padding: 30px 20px; }
@@ -61,14 +89,15 @@
         </div>
     </div>
     <script>
-        // Fetch patients from the backend
+        // Fetch patients from Firebase
         async function fetchPatients() {
             try {
-                const response = await fetch('http://localhost:5000/get_patients');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const patients = await response.json();
+                const patientsCollection = collection(db, 'patients');
+                const querySnapshot = await getDocs(patientsCollection);
+                const patients = [];
+                querySnapshot.forEach((doc) => {
+                    patients.push({ id: doc.id, ...doc.data() });
+                });
                 renderPatients(patients);
             } catch (error) {
                 console.error('Error fetching patients:', error);
@@ -101,30 +130,25 @@
         // Add new patient
         async function addPatient() {
             const name = document.getElementById('newPatientName').value.trim();
-            const age = document.getElementById('newPatientAge').value.trim();
-            const gender = document.getElementById('newPatientGender').value;
+            const id = document.getElementById('newPatientId').value.trim();
 
-            if (!name) {
-                alert('Please enter patient name');
+            if (!name || !id) {
+                alert('Please enter both patient name and ID');
                 return;
             }
 
             try {
-                const response = await fetch('http://localhost:5000/add_patient', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name, age, gender })
+                const patientsCollection = collection(db, 'patients');
+                await addDoc(patientsCollection, {
+                    name: name,
+                    id: id,
+                    createdAt: new Date()
                 });
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const newPatient = await response.json();
                 alert('Patient added successfully!');
-                document.getElementById('addPatientForm').reset();
+                document.getElementById('newPatientName').value = '';
+                document.getElementById('newPatientId').value = '';
+                hideAddPatient();
                 fetchPatients(); // Refresh the list
             } catch (error) {
                 console.error('Error adding patient:', error);
@@ -139,14 +163,7 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:5000/delete_patient/${id}`, {
-                    method: 'DELETE'
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
+                await deleteDoc(doc(db, 'patients', id));
                 alert('Patient deleted successfully!');
                 fetchPatients(); // Refresh the list
             } catch (error) {
@@ -161,17 +178,10 @@
             if (!newName) return;
 
             try {
-                const response = await fetch('http://localhost:5000/update_patient', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ id, name: newName })
+                const patientRef = doc(db, 'patients', id);
+                await updateDoc(patientRef, {
+                    name: newName
                 });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
 
                 alert('Patient updated successfully!');
                 fetchPatients(); // Refresh the list
