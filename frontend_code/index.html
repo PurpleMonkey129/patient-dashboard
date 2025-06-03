@@ -5,12 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Dashboard</title>
     <!-- Firebase SDK -->
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js"></script>
-    <!-- Your Firebase configuration -->
-    <script type="module" src="js/firebase.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtAmUF5c_VY3eUXZQEyKN8oxM_zmj9mOs",
+            authDomain: "patient-dashboard-500d2.firebaseapp.com",
+            projectId: "patient-dashboard-500d2",
+            storageBucket: "patient-dashboard-500d2.firebasestorage.app",
+            messagingSenderId: "178852814723",
+            appId: "1:178852814723:web:b92ae5e5009a1a7e66e0b6"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        // Make Firebase services available globally
+        window.db = db;
+        window.auth = auth;
+        window.storage = storage;
+    </script>
     <style>
         * {
             margin: 0;
