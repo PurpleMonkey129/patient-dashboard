@@ -75,6 +75,7 @@
                     <tr>
                         <th>Name</th>
                         <th>ID</th>
+                        <th>Created At</th>
                         <th class="actions">Actions</th>
                     </tr>
                 </thead>
@@ -82,12 +83,12 @@
                 </tbody>
             </table>
         </div>
-        <div id="addPatientForm" style="display:none; margin-bottom:20px;">
+        <form id="addPatientForm" style="display:none; margin-bottom:20px;">
             <input type="text" id="newPatientName" placeholder="Patient Name" required style="padding:8px; margin-right:8px;">
             <input type="text" id="newPatientId" placeholder="Patient ID" required style="padding:8px; margin-right:8px;">
-            <button class="save-btn action-btn" onclick="addPatient()">Save</button>
-            <button class="cancel-btn action-btn" onclick="hideAddPatient()">Cancel</button>
-        </div>
+            <button type="submit" class="save-btn action-btn">Save</button>
+            <button type="button" class="cancel-btn action-btn" onclick="hideAddPatient()">Cancel</button>
+        </form>
     </div>
     <script>
         // Fetch patients from Firebase
@@ -112,12 +113,18 @@
             tbody.innerHTML = '';
             
             patients.forEach(patient => {
+                let createdAt = '';
+                if (patient.createdAt && patient.createdAt.seconds) {
+                    const date = new Date(patient.createdAt.seconds * 1000);
+                    createdAt = date.toLocaleString();
+                }
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${patient.name}</td>
                     <td>${patient.id}</td>
+                    <td>${createdAt}</td>
                     <td class="actions">
-                        <button onclick="selectPatient('${patient.docId}', '${patient.name}')" class="action-btn edit-btn">Select</button>
+                        <button onclick="selectPatient('${patient.docId}', '${patient.name}', '${patient.id}')" class="action-btn edit-btn">Select</button>
                         <button onclick="editPatient('${patient.docId}', '${patient.name}')" class="action-btn edit-btn">Edit</button>
                         <button onclick="deletePatient('${patient.docId}')" class="action-btn delete-btn">Delete</button>
                     </td>
@@ -196,14 +203,27 @@
         }
 
         // Select patient
-        function selectPatient(docId, name) {
-            // You can implement selection logic here if needed
-            alert(`Selected patient: ${name}`);
+        async function selectPatient(docId, name, id) {
+            // Fetch the patient document to get the latest data
+            try {
+                const patientDoc = await getDoc(doc(db, 'patients', docId));
+                if (patientDoc.exists()) {
+                    const patientData = patientDoc.data();
+                    const patient = { id: patientData.id, name: patientData.name };
+                    sessionStorage.setItem('selectedPatient', JSON.stringify(patient));
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Patient not found.');
+                }
+            } catch (error) {
+                alert('Error selecting patient: ' + error.message);
+            }
         }
 
         // Add show/hide functions for the add patient form
         function showAddPatient() {
             document.getElementById('addPatientForm').style.display = 'block';
+            document.getElementById('newPatientName').focus();
         }
 
         function hideAddPatient() {
@@ -213,7 +233,6 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             fetchPatients();
-            
             // Add event listener for the add patient form
             document.getElementById('addPatientForm').addEventListener('submit', (e) => {
                 e.preventDefault();

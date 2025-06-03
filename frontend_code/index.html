@@ -177,6 +177,16 @@
                 buttons.forEach(button => button.disabled = false);
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const addPatientForm = document.getElementById('addPatientForm');
+            if (addPatientForm) {
+                addPatientForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    addPatient();
+                });
+            }
+        });
     </script>
     <style>
         * {
@@ -388,19 +398,19 @@
             <p>Add or select a patient to begin</p>
         </div>
 
-        <div class="input-section">
+        <form id="addPatientForm" class="input-section" style="margin-bottom:0;">
             <div class="input-group">
                 <label for="patientId">Patient ID</label>
-                <input type="text" id="patientId" placeholder="Enter patient ID">
+                <input type="text" id="patientId" placeholder="Enter patient ID" required>
             </div>
             <div class="input-group">
                 <label for="patientName">Patient Name</label>
-                <input type="text" id="patientName" placeholder="Enter patient name">
+                <input type="text" id="patientName" placeholder="Enter patient name" required>
             </div>
             <div class="button-group">
-                <button class="add-button" onclick="addPatient()">Add Patient</button>
+                <button type="submit" class="add-button">Add Patient</button>
             </div>
-        </div>
+        </form>
 
         <div class="input-section">
             <div class="input-group">
