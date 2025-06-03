@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .patient-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .patient-info h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .patient-info p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .add-button, .select-button {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            align-self: flex-end;
+        }
+
+        .add-button {
+            background-color: #2ecc71;
+        }
+
+        .add-button:hover {
+            background-color: #27ae60;
+        }
+
+        .select-button {
+            background-color: #3498db;
+        }
+
+        .select-button:hover {
+            background-color: #2980b9;
+        }
+
+        .patient-list {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .patient-list h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .patient-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: white;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .patient-info-text {
+            flex-grow: 1;
+        }
+
+        .delete-button {
+            padding: 5px 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background-color: #c0392b;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .option-button {
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .option-button:hover {
+            background-color: #2980b9;
+        }
+
+        .option-button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .dashboard-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px 8px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dashboard-btn:hover { background: #2980b9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="patient_list.html" class="dashboard-btn" style="float:right; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right:8px;">
+                <path d="M2 12.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 2.5 4h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 4.5z"/>
+            </svg>
+            Patients List
+        </a>
+        <div class="header">
+            <h1>Patient Dashboard</h1>
+            <p>Add or select a patient to begin</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="patientId">Patient ID</label>
+                <input type="text" id="patientId" placeholder="Enter patient ID">
+            </div>
+            <div class="input-group">
+                <label for="patientName">Patient Name</label>
+                <input type="text" id="patientName" placeholder="Enter patient name">
+            </div>
+            <div class="button-group">
+                <button class="add-button" onclick="addPatient()">Add Patient</button>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="patientSelect">Select Patient</label>
+                <select id="patientSelect" onchange="handlePatientSelect()">
+                    <option value="">Select a patient...</option>
+                </select>
+            </div>
+            <div class="button-group">
+                <button class="select-button" onclick="selectPatient()">Select Patient</button>
+            </div>
+        </div>
+
+        <div class="patient-list" style="display:none;">
+            <h2>Patient List</h2>
+            <div id="patientList"></div>
+        </div>
+
+        <div id="selectedPatientInfo" class="patient-info" style="display: none;">
+            <h2>Selected Patient</h2>
+            <p id="currentPatientInfo"></p>
+        </div>
+
+        <div class="options-grid">
+            <button class="option-button" onclick="openForm('patient_details')" id="patientDetailsBtn" disabled>Patient Details</button>
+            <button class="option-button" onclick="openForm('anthropometric')" id="anthropometricBtn" disabled>Anthropometric Details</button>
+            <button class="option-button" onclick="openForm('biomarkers')" id="biomarkersBtn" disabled>Biomarkers</button>
+            <button class="option-button" onclick="openForm('vitals')" id="vitalsBtn" disabled>Vitals</button>
+            <button class="option-button" onclick="openForm('hrv')" id="hrvBtn" disabled>HRV</button>
+            <button class="option-button" onclick="openForm('caft')" id="caftBtn" disabled>CAFT</button>
+            <button class="option-button" onclick="openForm('brs')" id="brsBtn" disabled>BRS</button>
+            <button class="option-button" onclick="openForm('p300')" id="p300Btn" disabled>P300</button>
+            <button class="option-button" onclick="openForm('reaction_time')" id="reactionTimeBtn" disabled>Reaction Time</button>
+            <button class="option-button" onclick="openForm('psqi_language_select')" id="psqiBtn" disabled>PSQI</button>
+            <button class="option-button" onclick="openForm('aqlq_language_select')" id="aqlqBtn" disabled>AQLQ</button>
+        </div>
+    </div>
+
+    <script>
+        let patients = JSON.parse(localStorage.getItem('patients')) || [];
+        let selectedPatient = null;
+
+        function addPatient() {
+            const patientId = document.getElementById('patientId').value.trim();
+            const patientName = document.getElementById('patientName').value.trim();
+
+            if (patientId && patientName) {
+                // Check if patient ID already exists
+                if (patients.some(p => p.id === patientId)) {
+                    alert('Patient ID already exists!');
+                    return;
+                }
+
+                // Add new patient
+                patients.push({ id: patientId, name: patientName });
+                localStorage.setItem('patients', JSON.stringify(patients));
+                
+                // Update display
+                updatePatientList();
+                updatePatientSelect();
+                
+                // Clear input fields
+                document.getElementById('patientId').value = '';
+                document.getElementById('patientName').value = '';
+            } else {
+                alert('Please enter both Patient ID and Name');
+            }
+        }
+
+        function handlePatientSelect() {
+            const select = document.getElementById('patientSelect');
+            const selectedValue = select.value;
+            
+            if (selectedValue) {
+                const [id, name] = selectedValue.split('|');
+                document.getElementById('patientId').value = id;
+                document.getElementById('patientName').value = name;
+            }
+        }
+
+        function selectPatient() {
+            const select = document.getElementById('patientSelect');
+            const selectedValue = select.value;
+            
+            if (selectedValue) {
+                const [id, name] = selectedValue.split('|');
+                const patient = patients.find(p => p.id === id && p.name === name);
+                if (patient) {
+                    setSelectedPatient(patient);
+                }
+            } else {
+                alert('Please select a patient from the list');
+            }
+        }
+
+        function setSelectedPatient(patient) {
+            selectedPatient = patient;
+            sessionStorage.setItem('selectedPatient', JSON.stringify(patient));
+            
+            // Update UI
+            document.getElementById('selectedPatientInfo').style.display = 'block';
+            document.getElementById('currentPatientInfo').textContent = `${patient.name} (ID: ${patient.id})`;
+            
+            // Enable all buttons
+            const buttons = document.querySelectorAll('.option-button');
+            buttons.forEach(button => button.disabled = false);
+        }
+
+        function deletePatient(id) {
+            if (confirm('Are you sure you want to delete this patient?')) {
+                patients = patients.filter(p => p.id !== id);
+                localStorage.setItem('patients', JSON.stringify(patients));
+                updatePatientList();
+                updatePatientSelect();
+                
+                // If the deleted patient was selected, clear selection
+                if (selectedPatient && selectedPatient.id === id) {
+                    selectedPatient = null;
+                    sessionStorage.removeItem('selectedPatient');
+                    document.getElementById('selectedPatientInfo').style.display = 'none';
+                    const buttons = document.querySelectorAll('.option-button');
+                    buttons.forEach(button => button.disabled = true);
+                }
+            }
+        }
+
+        function updatePatientList() {
+            const patientList = document.getElementById('patientList');
+            patientList.innerHTML = '';
+
+            patients.forEach(patient => {
+                const patientItem = document.createElement('div');
+                patientItem.className = 'patient-item';
+                patientItem.innerHTML = `
+                    <div class="patient-info-text">
+                        <strong>${patient.name}</strong> (ID: ${patient.id})
+                    </div>
+                    <button class="delete-button" onclick="deletePatient('${patient.id}')">Delete</button>
+                `;
+                patientList.appendChild(patientItem);
+            });
+        }
+
+        function updatePatientSelect() {
+            const select = document.getElementById('patientSelect');
+            select.innerHTML = '<option value="">Select a patient...</option>';
+            
+            patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = `${patient.id}|${patient.name}`;
+                option.textContent = `${patient.name} (ID: ${patient.id})`;
+                select.appendChild(option);
+            });
+        }
+
+        function openForm(formType) {
+            if (!selectedPatient) {
+                alert('Please select a patient first');
+                return;
+            }
+            window.open(`${formType}.html`, '_blank');
+        }
+
+        // Initialize
+        window.onload = function() {
+            updatePatientList();
+            updatePatientSelect();
+            
+            // Check if there's a selected patient in sessionStorage
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                selectedPatient = JSON.parse(storedPatient);
+                document.getElementById('selectedPatientInfo').style.display = 'block';
+                document.getElementById('currentPatientInfo').textContent = 
+                    `${selectedPatient.name} (ID: ${selectedPatient.id})`;
+                
+                // Enable all buttons
+                const buttons = document.querySelectorAll('.option-button');
+                buttons.forEach(button => button.disabled = false);
+            }
+        }
+
+        // Update all fetch URLs to use relative paths
+        async function fetchPatients() {
+            try {
+                const response = await fetch('/get_patients');
+                // ... rest of the code ...
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Update all other fetch calls similarly
+        // ... rest of the code ...
+    </script>
+</body>
+</html>

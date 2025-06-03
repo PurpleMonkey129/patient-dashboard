@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pittsburgh Sleep Quality Index (PSQI) - English</title>
+    <style>
+        body { background-color: #f5f6fa; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); padding: 30px 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: #2c3e50; margin-bottom: 10px; }
+        .instructions { color: #34495e; margin-bottom: 20px; text-align: center; }
+        .patient-info { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+        .patient-info p { color: #7f8c8d; font-size: 1.1em; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #34495e; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-size: 14px; }
+        .form-group textarea { min-height: 50px; }
+        .subgroup { margin-left: 15px; margin-bottom: 10px; }
+        .subgroup label { font-weight: 400; color: #2c3e50; }
+        .submit-button { background-color: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; transition: background-color 0.3s ease; }
+        .submit-button:hover { background-color: #2980b9; }
+        .required::after { content: " *"; color: #e74c3c; }
+        .back-button { display: inline-block; padding: 10px 20px; background-color: #95a5a6; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; transition: background-color 0.3s ease; }
+        .back-button:hover { background-color: #7f8c8d; }
+        .section-title { color: #2c3e50; font-size: 1.2em; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #3498db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="psqi_language_select.html" class="back-button">← Back</a>
+        <div class="header">
+            <h1>Pittsburgh Sleep Quality Index (PSQI)</h1>
+        </div>
+        <div class="instructions">
+            Please answer all questions based on your sleep habits during the past month only.
+        </div>
+        <div id="patientInfo" class="patient-info">
+            <p id="selectedPatientInfo"></p>
+        </div>
+        <form id="psqiForm">
+            <div class="section-title">Sleep Habits</div>
+            <div class="form-group">
+                <label for="bedtime" class="required">1. During the past month, what time have you usually gone to bed at night?</label>
+                <input type="time" id="bedtime" name="bedtime" required>
+            </div>
+            <div class="form-group">
+                <label for="sleep_latency" class="required">2. During the past month, how long (in minutes) has it usually taken you to fall asleep each night?</label>
+                <input type="number" id="sleep_latency" name="sleep_latency" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="wakeup" class="required">3. During the past month, what time have you usually gotten up in the morning?</label>
+                <input type="time" id="wakeup" name="wakeup" required>
+            </div>
+            <div class="form-group">
+                <label for="sleep_hours" class="required">4. During the past month, how many hours of actual sleep did you get at night?</label>
+                <input type="number" id="sleep_hours" name="sleep_hours" min="0" step="0.1" required>
+            </div>
+            <div class="section-title">Sleep Disturbances</div>
+            <div class="form-group">
+                <label>5. During the past month, how often have you had trouble sleeping because you:</label>
+                <div class="subgroup">
+                    <label for="q5a">a. Cannot get to sleep within 30 minutes</label>
+                    <select id="q5a" name="q5a" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5b">b. Wake up in the middle of the night or early morning</label>
+                    <select id="q5b" name="q5b" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5c">c. Have to get up to use the bathroom</label>
+                    <select id="q5c" name="q5c" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5d">d. Cannot breathe comfortably</label>
+                    <select id="q5d" name="q5d" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5e">e. Cough or snore loudly</label>
+                    <select id="q5e" name="q5e" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5f">f. Feel too cold</label>
+                    <select id="q5f" name="q5f" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5g">g. Feel too hot</label>
+                    <select id="q5g" name="q5g" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5h">h. Have bad dreams</label>
+                    <select id="q5h" name="q5h" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5i">i. Have pain</label>
+                    <select id="q5i" name="q5i" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="subgroup">
+                    <label for="q5j">j. Other reason(s), please describe</label>
+                    <input type="text" id="q5j_text" name="q5j_text" placeholder="Describe other reason(s)">
+                    <select id="q5j" name="q5j" required>
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+            </div>
+            <div class="section-title">Other Questions</div>
+            <div class="form-group">
+                <label for="medication" class="required">6. During the past month, how often have you taken medicine (prescribed or over the counter) to help you sleep?</label>
+                <select id="medication" name="medication" required>
+                    <option value="0">Not during the past month</option>
+                    <option value="1">Less than once a week</option>
+                    <option value="2">Once or twice a week</option>
+                    <option value="3">Three or more times a week</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="trouble_staying_awake" class="required">7. During the past month, how often have you had trouble staying awake while driving, eating meals, or engaging in social activity?</label>
+                <select id="trouble_staying_awake" name="trouble_staying_awake" required>
+                    <option value="0">Not during the past month</option>
+                    <option value="1">Less than once a week</option>
+                    <option value="2">Once or twice a week</option>
+                    <option value="3">Three or more times a week</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="enthusiasm" class="required">8. During the past month, how much of a problem has it been for you to keep up enough enthusiasm to get things done?</label>
+                <select id="enthusiasm" name="enthusiasm" required>
+                    <option value="0">No problem at all</option>
+                    <option value="1">Only a very slight problem</option>
+                    <option value="2">Somewhat of a problem</option>
+                    <option value="3">A very big problem</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sleep_quality" class="required">9. During the past month, how would you rate your sleep quality overall?</label>
+                <select id="sleep_quality" name="sleep_quality" required>
+                    <option value="0">Very good</option>
+                    <option value="1">Fairly good</option>
+                    <option value="2">Fairly bad</option>
+                    <option value="3">Very bad</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="bedmate_roommate" class="required">10. Do you have a bed partner or roommate?</label>
+                <select id="bedmate_roommate" name="bedmate_roommate" required onchange="toggleBedmateSection()">
+                    <option value="none">No bed partner or roommate</option>
+                    <option value="other_room">Partner/roommate in other room</option>
+                    <option value="same_room">Partner in same room, but not same bed</option>
+                    <option value="same_bed">Partner in same bed</option>
+                </select>
+            </div>
+            <div id="bedmateSection" style="display:none;">
+                <div class="section-title">Bed Partner/Roommate Section</div>
+                <div class="form-group" style="font-weight: 600; color: #2c3e50;">
+                    If you have a roommate or bed partner, ask him/her how often in the past month you have had:
+                </div>
+                <div class="form-group subgroup">
+                    <label for="bmq_a">a. Loud snoring</label>
+                    <select id="bmq_a" name="bmq_a">
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="form-group subgroup">
+                    <label for="bmq_b">b. Long pauses between breaths while asleep</label>
+                    <select id="bmq_b" name="bmq_b">
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="form-group subgroup">
+                    <label for="bmq_c">c. Legs twitching or jerking while you sleep</label>
+                    <select id="bmq_c" name="bmq_c">
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="form-group subgroup">
+                    <label for="bmq_d">d. Episodes of disorientation or confusion during sleep</label>
+                    <select id="bmq_d" name="bmq_d">
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+                <div class="form-group subgroup">
+                    <label for="bmq_e">e. Other restlessness while you sleep, please describe:</label>
+                    <input type="text" id="bmq_e_text" name="bmq_e_text" placeholder="Describe other restlessness">
+                    <select id="bmq_e" name="bmq_e">
+                        <option value="0">Not during the past month</option>
+                        <option value="1">Less than once a week</option>
+                        <option value="2">Once or twice a week</option>
+                        <option value="3">Three or more times a week</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+    </div>
+    <script>
+        // Patient info from sessionStorage
+        window.onload = function() {
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                const patient = JSON.parse(storedPatient);
+                document.getElementById('selectedPatientInfo').textContent = `Patient: ${patient.name} (ID: ${patient.id})`;
+            } else {
+                document.getElementById('selectedPatientInfo').textContent = 'No patient selected.';
+            }
+            toggleBedmateSection();
+        }
+        function toggleBedmateSection() {
+            const val = document.getElementById('bedmate_roommate').value;
+            document.getElementById('bedmateSection').style.display = (val !== 'none') ? 'block' : 'none';
+        }
+        document.getElementById('psqiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Form submitted! (Implement data handling as needed)');
+            this.reset();
+            toggleBedmateSection();
+        });
+    </script>
+</body>
+</html> 

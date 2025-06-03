@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAFT Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .patient-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .patient-info p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #34495e;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .submit-button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #2980b9;
+        }
+
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.2em;
+            margin: 20px 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #7f8c8d;
+        }
+
+        .unit-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+
+        .cycle-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cycle-input {
+            text-align: center;
+        }
+
+        .cycle-input label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .calculated-field {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .deep-breathing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .deep-breathing-table th,
+        .deep-breathing-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #bdc3c7;
+        }
+
+        .deep-breathing-table th {
+            background-color: #f8f9fa;
+            color: #34495e;
+            font-weight: 600;
+        }
+
+        .deep-breathing-table input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← Back to Dashboard</a>
+
+        <div class="header">
+            <h1>CAFT Analysis</h1>
+        </div>
+
+        <div id="patientInfo" class="patient-info">
+            <p id="selectedPatientInfo"></p>
+        </div>
+
+        <form id="caftForm">
+            <input type="hidden" id="patientId" name="patientId">
+            <input type="hidden" id="patientName" name="patientName">
+
+            <div class="section-title">Heart Rate Response to Deep Breathing Test</div>
+
+            <table class="deep-breathing-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Parameters</th>
+                        <th colspan="6">Cycles</th>
+                        <th rowspan="2">Mean</th>
+                    </tr>
+                    <tr>
+                        <th>1st cycle</th>
+                        <th>2nd cycle</th>
+                        <th>3rd cycle</th>
+                        <th>4th cycle</th>
+                        <th>5th cycle</th>
+                        <th>6th cycle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Maximum R-R interval during expiration</td>
+                        <td><input type="number" name="maxRR1" step="0.1" required></td>
+                        <td><input type="number" name="maxRR2" step="0.1" required></td>
+                        <td><input type="number" name="maxRR3" step="0.1" required></td>
+                        <td><input type="number" name="maxRR4" step="0.1" required></td>
+                        <td><input type="number" name="maxRR5" step="0.1" required></td>
+                        <td><input type="number" name="maxRR6" step="0.1" required></td>
+                        <td><input type="number" id="maxRRMean" name="maxRRMean" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>Minimum R-R interval during inspiration</td>
+                        <td><input type="number" name="minRR1" step="0.1" required></td>
+                        <td><input type="number" name="minRR2" step="0.1" required></td>
+                        <td><input type="number" name="minRR3" step="0.1" required></td>
+                        <td><input type="number" name="minRR4" step="0.1" required></td>
+                        <td><input type="number" name="minRR5" step="0.1" required></td>
+                        <td><input type="number" name="minRR6" step="0.1" required></td>
+                        <td><input type="number" id="minRRMean" name="minRRMean" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>E:I ratio</td>
+                        <td><input type="number" id="eiRatio1" name="eiRatio1" readonly></td>
+                        <td><input type="number" id="eiRatio2" name="eiRatio2" readonly></td>
+                        <td><input type="number" id="eiRatio3" name="eiRatio3" readonly></td>
+                        <td><input type="number" id="eiRatio4" name="eiRatio4" readonly></td>
+                        <td><input type="number" id="eiRatio5" name="eiRatio5" readonly></td>
+                        <td><input type="number" id="eiRatio6" name="eiRatio6" readonly></td>
+                        <td><input type="number" id="eiRatioMean" name="eiRatioMean" readonly></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="form-group">
+                <label for="basalDBP" class="required">Basal Diastolic Pressure</label>
+                <input type="number" id="basalDBP" name="basalDBP" step="1" required>
+                <span class="unit-label">mmHg</span>
+            </div>
+
+            <div class="form-group">
+                <label for="finalDBP" class="required">Final Diastolic Pressure</label>
+                <input type="number" id="finalDBP" name="finalDBP" step="1" required>
+                <span class="unit-label">mmHg</span>
+            </div>
+
+            <div class="form-group">
+                <label for="dbpChange">DBP Change</label>
+                <input type="number" id="dbpChange" name="dbpChange" readonly>
+                <span class="unit-label">mmHg</span>
+                <div class="calculated-field">Calculated as Final DBP - Basal DBP</div>
+            </div>
+
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        // Get patient information from sessionStorage
+        window.onload = function() {
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                const patient = JSON.parse(storedPatient);
+                document.getElementById('patientId').value = patient.id;
+                document.getElementById('patientName').value = patient.name;
+                document.getElementById('selectedPatientInfo').textContent = 
+                    `Patient: ${patient.name} (ID: ${patient.id})`;
+            } else {
+                alert('No patient selected. Please select a patient from the dashboard.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Function to calculate means and E:I ratios for each cycle
+        function calculateDeepBreathingTable() {
+            let maxSum = 0, minSum = 0, eiSum = 0, maxCount = 0, minCount = 0, eiCount = 0;
+            for (let i = 1; i <= 6; i++) {
+                const maxRR = parseFloat(document.querySelector(`input[name='maxRR${i}']`).value) || 0;
+                const minRR = parseFloat(document.querySelector(`input[name='minRR${i}']`).value) || 0;
+                // Calculate E:I ratio for this cycle
+                let ei = '';
+                if (maxRR > 0 && minRR > 0) {
+                    ei = (maxRR / minRR).toFixed(2);
+                    eiSum += parseFloat(ei);
+                    eiCount++;
+                }
+                document.getElementById(`eiRatio${i}`).value = ei;
+                // For means
+                if (maxRR > 0) { maxSum += maxRR; maxCount++; }
+                if (minRR > 0) { minSum += minRR; minCount++; }
+            }
+            document.getElementById('maxRRMean').value = maxCount > 0 ? (maxSum / maxCount).toFixed(2) : '';
+            document.getElementById('minRRMean').value = minCount > 0 ? (minSum / minCount).toFixed(2) : '';
+            document.getElementById('eiRatioMean').value = eiCount > 0 ? (eiSum / eiCount).toFixed(2) : '';
+        }
+
+        // Add event listeners for all maxRR and minRR inputs
+        for (let i = 1; i <= 6; i++) {
+            document.querySelector(`input[name='maxRR${i}']`).addEventListener('input', calculateDeepBreathingTable);
+            document.querySelector(`input[name='minRR${i}']`).addEventListener('input', calculateDeepBreathingTable);
+        }
+
+        // Function to calculate DBP change
+        function calculateDBPChange() {
+            const basalDBP = parseFloat(document.getElementById('basalDBP').value) || 0;
+            const finalDBP = parseFloat(document.getElementById('finalDBP').value) || 0;
+
+            const dbpChange = finalDBP - basalDBP;
+            document.getElementById('dbpChange').value = dbpChange.toFixed(1);
+        }
+
+        // Add event listeners for calculations
+        document.getElementById('basalDBP').addEventListener('input', calculateDBPChange);
+        document.getElementById('finalDBP').addEventListener('input', calculateDBPChange);
+
+        document.getElementById('caftForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('http://localhost:5000/submit_caft', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('Data submitted successfully!');
+                    e.target.reset();
+                    // Keep the patient information
+                    const patient = JSON.parse(sessionStorage.getItem('selectedPatient'));
+                    document.getElementById('patientId').value = patient.id;
+                    document.getElementById('patientName').value = patient.name;
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting data. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html> 

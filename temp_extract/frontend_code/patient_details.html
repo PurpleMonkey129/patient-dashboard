@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f5f6fa; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #2c3e50; margin-bottom: 10px; }
+        .patient-info { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+        .patient-info p { color: #7f8c8d; font-size: 1.1em; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #34495e; font-weight: 600; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-size: 14px; }
+        .form-group textarea { min-height: 60px; }
+        .submit-button { background-color: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; transition: background-color 0.3s ease; }
+        .submit-button:hover { background-color: #2980b9; }
+        .required::after { content: " *"; color: #e74c3c; }
+        .section-title { color: #2c3e50; font-size: 1.2em; margin: 20px 0 15px 0; padding-bottom: 5px; border-bottom: 2px solid #3498db; }
+        .back-button { display: inline-block; padding: 10px 20px; background-color: #95a5a6; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; transition: background-color 0.3s ease; }
+        .back-button:hover { background-color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← Back to Dashboard</a>
+        <div class="header">
+            <h1>Patient Details</h1>
+        </div>
+        <div id="patientInfo" class="patient-info">
+            <p id="selectedPatientInfo"></p>
+        </div>
+        <form id="patientDetailsForm">
+            <div class="form-group">
+                <label for="date" class="required">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="patientName" class="required">Patient Name</label>
+                <input type="text" id="patientName" name="patientName" required>
+            </div>
+            <div class="form-group">
+                <label for="hospitalId" class="required">Hospital ID No</label>
+                <input type="text" id="hospitalId" name="hospitalId" required>
+            </div>
+            <div class="form-group">
+                <label for="fatherHusbandName">Father/Husband Name</label>
+                <input type="text" id="fatherHusbandName" name="fatherHusbandName">
+            </div>
+            <div class="form-group">
+                <label for="age" class="required">Age</label>
+                <input type="number" id="age" name="age" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="sex" class="required">Sex</label>
+                <select id="sex" name="sex" required>
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="occupation">Occupation</label>
+                <input type="text" id="occupation" name="occupation">
+            </div>
+            <div class="form-group">
+                <label for="monthlyIncome">Monthly Income</label>
+                <input type="number" id="monthlyIncome" name="monthlyIncome" min="0">
+            </div>
+            <div class="form-group">
+                <label for="socioeconomicStatus">Socioeconomic Status</label>
+                <input type="text" id="socioeconomicStatus" name="socioeconomicStatus">
+            </div>
+            <div class="form-group">
+                <label for="education">Education</label>
+                <input type="text" id="education" name="education">
+            </div>
+            <div class="form-group">
+                <label for="maritalStatus">Marital Status</label>
+                <input type="text" id="maritalStatus" name="maritalStatus">
+            </div>
+            <div class="form-group">
+                <label for="typeOfFamily">Type of Family</label>
+                <input type="text" id="typeOfFamily" name="typeOfFamily">
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <textarea id="address" name="address"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="contactNo">Contact No</label>
+                <input type="text" id="contactNo" name="contactNo">
+            </div>
+            <div class="form-group">
+                <label for="historyOfIllness">History of the Illness</label>
+                <textarea id="historyOfIllness" name="historyOfIllness"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="pastHistory">Past History</label>
+                <textarea id="pastHistory" name="pastHistory"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="treatmentHistory">Treatment History</label>
+                <textarea id="treatmentHistory" name="treatmentHistory"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="familyHistory">Family History</label>
+                <textarea id="familyHistory" name="familyHistory"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="medicalComorbidities">Any Medical Co-morbidities</label>
+                <textarea id="medicalComorbidities" name="medicalComorbidities"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="historyOfSmoking">History of Smoking</label>
+                <textarea id="historyOfSmoking" name="historyOfSmoking"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="historyOfAlcoholism">History of Alcoholism</label>
+                <textarea id="historyOfAlcoholism" name="historyOfAlcoholism"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="asthmaMedicines">Medicines being taken for Asthma</label>
+                <textarea id="asthmaMedicines" name="asthmaMedicines"></textarea>
+            </div>
+            <div class="section-title">Clinical Characteristics</div>
+            <div class="form-group">
+                <label for="diseaseDuration">Disease Duration</label>
+                <input type="text" id="diseaseDuration" name="diseaseDuration">
+            </div>
+            <div class="form-group">
+                <label for="diseaseSeverity">Disease Severity</label>
+                <input type="text" id="diseaseSeverity" name="diseaseSeverity">
+            </div>
+            <div class="form-group">
+                <label for="numberOfRelapses">Number of Relapses</label>
+                <input type="number" id="numberOfRelapses" name="numberOfRelapses" min="0">
+            </div>
+            <div class="form-group">
+                <label for="responsesToTherapy">Responses to Therapy</label>
+                <textarea id="responsesToTherapy" name="responsesToTherapy"></textarea>
+            </div>
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+    </div>
+    <script>
+        // Get patient information from sessionStorage
+        window.onload = function() {
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                document.getElementById('selectedPatientInfo').textContent = `Patient: ${JSON.parse(storedPatient).name} (ID: ${JSON.parse(storedPatient).id})`;
+                document.getElementById('patientName').value = JSON.parse(storedPatient).name;
+                document.getElementById('hospitalId').value = JSON.parse(storedPatient).id;
+            } else {
+                alert('No patient selected. Please select a patient from the dashboard.');
+                window.location.href = 'index.html';
+            }
+            // Set today's date in the date field
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        document.getElementById('patientDetailsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('http://localhost:5000/submit_patient_details', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('Data submitted successfully!');
+                    e.target.reset();
+                    // Keep the patient information
+                    const patient = JSON.parse(sessionStorage.getItem('selectedPatient'));
+                    document.getElementById('patientName').value = patient.name;
+                    document.getElementById('hospitalId').value = patient.id;
+                    // Reset date to today
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    document.getElementById('date').value = `${yyyy}-${mm}-${dd}`;
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting data. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html> 

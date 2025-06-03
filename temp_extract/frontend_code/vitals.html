@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitals</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .patient-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .patient-info p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #34495e;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .submit-button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #2980b9;
+        }
+
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.2em;
+            margin: 20px 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #7f8c8d;
+        }
+
+        .unit-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← Back to Dashboard</a>
+
+        <div class="header">
+            <h1>Vitals</h1>
+        </div>
+
+        <div id="patientInfo" class="patient-info">
+            <p id="selectedPatientInfo"></p>
+        </div>
+
+        <form id="vitalsForm">
+            <input type="hidden" id="patientId" name="patientId">
+            <input type="hidden" id="patientName" name="patientName">
+
+            <div class="section-title">Vital Signs</div>
+
+            <div class="form-group">
+                <label for="pulseRate" class="required">Pulse Rate</label>
+                <input type="number" id="pulseRate" name="pulseRate" step="0.1" required>
+                <span class="unit-label">/min</span>
+            </div>
+
+            <div class="form-group">
+                <label for="bloodPressure" class="required">Blood Pressure</label>
+                <input type="text" id="bloodPressure" name="bloodPressure" placeholder="e.g., 120/80" required>
+                <span class="unit-label">mmHg</span>
+            </div>
+
+            <div class="form-group">
+                <label for="meanArterialPressure" class="required">Mean Arterial Pressure</label>
+                <input type="number" id="meanArterialPressure" name="meanArterialPressure" step="0.1" required>
+                <span class="unit-label">mmHg</span>
+            </div>
+
+            <div class="form-group">
+                <label for="respiratoryRate" class="required">Respiratory Rate</label>
+                <input type="number" id="respiratoryRate" name="respiratoryRate" step="0.1" required>
+                <span class="unit-label">breaths/min</span>
+            </div>
+
+            <div class="form-group">
+                <label for="oxygenSaturation" class="required">Oxygen Saturation</label>
+                <input type="number" id="oxygenSaturation" name="oxygenSaturation" step="0.1" min="0" max="100" required>
+                <span class="unit-label">%</span>
+            </div>
+
+            <div class="form-group">
+                <label for="temperature" class="required">Temperature</label>
+                <input type="number" id="temperature" name="temperature" step="0.1" required>
+                <span class="unit-label">°C</span>
+            </div>
+
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        // Get patient information from sessionStorage
+        window.onload = function() {
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                const patient = JSON.parse(storedPatient);
+                document.getElementById('patientId').value = patient.id;
+                document.getElementById('patientName').value = patient.name;
+                document.getElementById('selectedPatientInfo').textContent = 
+                    `Patient: ${patient.name} (ID: ${patient.id})`;
+            } else {
+                alert('No patient selected. Please select a patient from the dashboard.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        document.getElementById('vitalsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('http://localhost:5000/submit_vitals', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('Data submitted successfully!');
+                    e.target.reset();
+                    // Keep the patient information
+                    const patient = JSON.parse(sessionStorage.getItem('selectedPatient'));
+                    document.getElementById('patientId').value = patient.id;
+                    document.getElementById('patientName').value = patient.name;
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting data. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html> 

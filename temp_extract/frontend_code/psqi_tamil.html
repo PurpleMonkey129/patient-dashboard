@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSQI - உறக்கத் தரம் மதிப்பீடு (தமிழ்)</title>
+    <style>
+        body { background-color: #f5f6fa; padding: 20px; font-family: 'Noto Sans Tamil', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .container { max-width: 750px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); padding: 30px 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: #2c3e50; margin-bottom: 10px; font-size: 1.5em; }
+        .instructions { color: #34495e; margin-bottom: 20px; text-align: center; font-size: 1.1em; }
+        .patient-info { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+        .patient-info p { color: #7f8c8d; font-size: 1.1em; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #34495e; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-size: 14px; }
+        .form-group textarea { min-height: 50px; }
+        .section-title { color: #2c3e50; font-size: 1.1em; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #3498db; }
+        .submit-button { background-color: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; transition: background-color 0.3s ease; }
+        .submit-button:hover { background-color: #2980b9; }
+        .back-button { display: inline-block; padding: 10px 20px; background-color: #95a5a6; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; transition: background-color 0.3s ease; }
+        .back-button:hover { background-color: #7f8c8d; }
+        table.psqi-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        table.psqi-table th, table.psqi-table td { border: 1px solid #bdc3c7; padding: 8px; text-align: center; }
+        table.psqi-table th { background: #f8f9fa; }
+        .psqi-table input, .psqi-table select { width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="psqi_language_select.html" class="back-button">← பின்செல்</a>
+        <div class="header">
+            <h1>PSQI - உறக்கத் தரம் மதிப்பீடு (தமிழ்)</h1>
+        </div>
+        <div class="instructions">
+            கீழே உள்ள கேள்விகளுக்கான பதில்களை கடந்த மாதம் உங்கள் உறக்கத்தின் அடிப்படையில் அளிக்கவும்.<br>பதில்கள் அனைத்தும் கடந்த மாதத்திற்கு மட்டுமே பொருந்தும்.
+        </div>
+        <div id="patientInfo" class="patient-info">
+            <p id="selectedPatientInfo"></p>
+        </div>
+        <form id="psqiTamilForm">
+            <div class="section-title">உறக்க பழக்கங்கள்</div>
+            <div class="form-group">
+                <label for="bedtime">1. நீங்கள் இரவில் எப்போது படுக்கச் செல்கிறீர்கள்?</label>
+                <input type="time" id="bedtime" name="bedtime" required>
+            </div>
+            <div class="form-group">
+                <label for="sleep_latency">2. படுக்கையில் இருந்து உறக்கமடைய எவ்வளவு நேரம் எடுக்கும் (நிமிடங்களில்)?</label>
+                <input type="number" id="sleep_latency" name="sleep_latency" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="wakeup">3. நீங்கள் பொதுவாக எப்போது எழுகிறீர்கள்?</label>
+                <input type="time" id="wakeup" name="wakeup" required>
+            </div>
+            <div class="form-group">
+                <label for="sleep_hours">4. நீங்கள் பொதுவாக ஒரு இரவில் எவ்வளவு நேரம் உறக்கத்தில் செலவிடுகிறீர்கள் (மணிநேரம்)?</label>
+                <input type="number" id="sleep_hours" name="sleep_hours" min="0" step="0.1" required>
+            </div>
+            <div class="section-title">5. கடந்த மாதத்தில், உங்களுக்கு உறக்கத்தில் பின்வரும் பிரச்சனைகள் எவ்வளவு நேரம் இருந்தன?</div>
+            <table class="psqi-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>சென்ற மாதத்தில் இல்லை</th>
+                        <th>ஒரு வாரத்திற்கு குறைவாக</th>
+                        <th>ஒரு அல்லது இரண்டு நாட்கள் வாரத்திற்கு</th>
+                        <th>மூன்று அல்லது அதற்கு மேற்பட்ட நாட்கள் வாரத்திற்கு</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1) 30 நிமிடத்திற்கு மேல் உறக்கமடைய முடியவில்லை</td>
+                        <td><input type="radio" name="q5a" value="0" required></td>
+                        <td><input type="radio" name="q5a" value="1"></td>
+                        <td><input type="radio" name="q5a" value="2"></td>
+                        <td><input type="radio" name="q5a" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>2) இரவில்/அதிகாலை எழுந்து கழிப்பறை செல்ல வேண்டும்</td>
+                        <td><input type="radio" name="q5b" value="0" required></td>
+                        <td><input type="radio" name="q5b" value="1"></td>
+                        <td><input type="radio" name="q5b" value="2"></td>
+                        <td><input type="radio" name="q5b" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>3) சுவாசத்தில் சிரமம்</td>
+                        <td><input type="radio" name="q5c" value="0" required></td>
+                        <td><input type="radio" name="q5c" value="1"></td>
+                        <td><input type="radio" name="q5c" value="2"></td>
+                        <td><input type="radio" name="q5c" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>4) இரவில் வலிகள்</td>
+                        <td><input type="radio" name="q5d" value="0" required></td>
+                        <td><input type="radio" name="q5d" value="1"></td>
+                        <td><input type="radio" name="q5d" value="2"></td>
+                        <td><input type="radio" name="q5d" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>5) கனவுகள்</td>
+                        <td><input type="radio" name="q5e" value="0" required></td>
+                        <td><input type="radio" name="q5e" value="1"></td>
+                        <td><input type="radio" name="q5e" value="2"></td>
+                        <td><input type="radio" name="q5e" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>6) சளி/தும்மல்/மூச்சுத்திணறல்</td>
+                        <td><input type="radio" name="q5f" value="0" required></td>
+                        <td><input type="radio" name="q5f" value="1"></td>
+                        <td><input type="radio" name="q5f" value="2"></td>
+                        <td><input type="radio" name="q5f" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>7) அதிகமாக குளிர்/சூடு</td>
+                        <td><input type="radio" name="q5g" value="0" required></td>
+                        <td><input type="radio" name="q5g" value="1"></td>
+                        <td><input type="radio" name="q5g" value="2"></td>
+                        <td><input type="radio" name="q5g" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>8) கெட்ட கனவுகள்</td>
+                        <td><input type="radio" name="q5h" value="0" required></td>
+                        <td><input type="radio" name="q5h" value="1"></td>
+                        <td><input type="radio" name="q5h" value="2"></td>
+                        <td><input type="radio" name="q5h" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>9) வெளியிருந்து</td>
+                        <td><input type="radio" name="q5i" value="0" required></td>
+                        <td><input type="radio" name="q5i" value="1"></td>
+                        <td><input type="radio" name="q5i" value="2"></td>
+                        <td><input type="radio" name="q5i" value="3"></td>
+                    </tr>
+                    <tr>
+                        <td>10) மற்றவை</td>
+                        <td><input type="radio" name="q5j" value="0" required></td>
+                        <td><input type="radio" name="q5j" value="1"></td>
+                        <td><input type="radio" name="q5j" value="2"></td>
+                        <td><input type="radio" name="q5j" value="3"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="form-group">
+                <label for="medication">6. கடந்த மாதத்தில் எவ்வளவு முறை தூக்க மருந்து பயன்படுத்தி உள்ளீர்கள்?</label>
+                <select id="medication" name="medication" required>
+                    <option value="0">மிகவும் இல்லை</option>
+                    <option value="1">ஒரு வாரத்திற்கு குறைவாக</option>
+                    <option value="2">ஒரு அல்லது இரண்டு நாட்கள் வாரத்திற்கு</option>
+                    <option value="3">மூன்று அல்லது அதற்கு மேற்பட்ட நாட்கள் வாரத்திற்கு</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="daytime_sleepiness">7. கடந்த மாதம் நீங்கள் காலை நேரங்களில் அல்லது பணியின் போது விழிப்பில் கவனமாக இருக்க முடியாத நிலை இருந்ததா?</label>
+                <select id="daytime_sleepiness" name="daytime_sleepiness" required>
+                    <option value="0">மிகவும் இல்லை</option>
+                    <option value="1">ஒரு வாரத்திற்கு குறைவாக</option>
+                    <option value="2">ஒரு அல்லது இரண்டு நாட்கள் வாரத்திற்கு</option>
+                    <option value="3">மூன்று அல்லது அதற்கு மேற்பட்ட நாட்கள் வாரத்திற்கு</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="enthusiasm">8. கடந்த மாதம் உங்கள் பணிகளை மேற்கொள்ளத் தங்களுக்கு உற்சாகம் பாராமரிக்க எவ்வளவு சிரமம் இருந்தது?</label>
+                <select id="enthusiasm" name="enthusiasm" required>
+                    <option value="0">மிகவும் இல்லை</option>
+                    <option value="1">சிறிது</option>
+                    <option value="2">சில நேரம்</option>
+                    <option value="3">மிகவும் சிரமம்</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sleep_quality">9. கடந்த மாதத்தில் உங்கள் உறக்க தரம் எப்படி இருந்தது?</label>
+                <select id="sleep_quality" name="sleep_quality" required>
+                    <option value="0">மிகவும் நன்று</option>
+                    <option value="1">நன்று</option>
+                    <option value="2">சில நேரம் மோசம்</option>
+                    <option value="3">மிகவும் மோசம்</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-button">சமர்ப்பிக்கவும்</button>
+        </form>
+    </div>
+    <script>
+        // Patient info from sessionStorage
+        window.onload = function() {
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                const patient = JSON.parse(storedPatient);
+                document.getElementById('selectedPatientInfo').textContent = `நோயாளர்: ${patient.name} (ID: ${patient.id})`;
+            } else {
+                document.getElementById('selectedPatientInfo').textContent = 'நோயாளர் தேர்ந்தெடுக்கப்படவில்லை.';
+            }
+        }
+        document.getElementById('psqiTamilForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('படிவம் சமர்ப்பிக்கப்பட்டது! (தரவுகளை சேமிக்க தேவையான செயல்பாட்டை சேர்க்கவும்)');
+            this.reset();
+        });
+    </script>
+</body>
+</html> 

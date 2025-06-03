@@ -1,0 +1,5 @@
+deployment id:
+AKfycbw6OTVpEMPxCl-qPHYLV-K6Qsk6N0SvKlu2Djkqj-F9w5q-y3p4jGQq0nMhnoD2VTiE
+
+url:
+https://script.google.com/macros/s/AKfycbw6OTVpEMPxCl-qPHYLV-K6Qsk6N0SvKlu2Djkqj-F9w5q-y3p4jGQq0nMhnoD2VTiE/exec

@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pittsburgh Sleep Quality Index (PSQI) - English</title>
+    <style>
+        body { background-color: #f5f6fa; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); padding: 30px 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: #2c3e50; margin-bottom: 10px; }
+        .instructions { color: #34495e; margin-bottom: 20px; text-align: center; }
+        .patient-info { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; }
+        .patient-info p { color: #7f8c8d; font-size: 1.1em; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #34495e; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-size: 14px; }
+        .form-group textarea { min-height: 50px; }
+        .subgroup { margin-left: 15px; margin-bottom: 10px; }
+        .subgroup label { font-weight: 400; color: #2c3e50; }
+        .submit-button { background-color: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; transition: background-color 0.3s ease; }
+        .submit-button:hover { background-color: #2980b9; }
+        .required::after { content: " *"; color: #e74c3c; }
+        .back-button { display: inline-block; padding: 10px 20px; background-color: #95a5a6; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; transition: background-color 0.3s ease; }
+        .back-button:hover { background-color: #7f8c8d; }
+        .section-title { color: #2c3e50; font-size: 1.2em; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #3498db; }
+        .psqi-table { width: 100%; border-collapse: collapse; }
+        .psqi-table th, .psqi-table td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        .psqi-table th { background-color: #f8f9fa; }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(44, 62, 80, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 95%;
+            padding: 30px 20px 20px 20px;
+            text-align: center;
+            z-index: 1001;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h2 { color: #2c3e50; margin-bottom: 18px; }
+        .modal table { width: 100%; margin-bottom: 18px; border-collapse: collapse; }
+        .modal th, .modal td { padding: 8px; border-bottom: 1px solid #eee; }
+        .modal th { background: #f8f9fa; }
+        .modal .global-score { font-weight: bold; color: #2980b9; font-size: 1.2em; }
+        .modal .modal-btn {
+            padding: 10px 24px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .modal .submit-btn { background: #3498db; color: #fff; }
+        .modal .close-btn { background: #95a5a6; color: #fff; }
+        .modal .submit-btn:hover { background: #2980b9; }
+        .modal .close-btn:hover { background: #7f8c8d; }
+        .ampm-toggle {
+            background: #95a5a6;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 16px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .ampm-toggle.active, .ampm-toggle:focus { background: #3498db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="psqi_language_select.html" class="back-button">← Back</a>
+        <div class="header">
+            <h1>Pittsburgh Sleep Quality Index (PSQI)</h1>
+        </div>
+        <div class="instructions">
+            Please answer all questions based on your sleep habits during the past month only.
+        </div>
+        <div id="patientInfo" class="patient-info">
+            <p id="selectedPatientInfo"></p>
+        </div>
+        <form id="psqiForm">
+            <div class="section-title">Sleep Habits</div>
+            <div class="form-group">
+                <label for="bedtime" class="required">1. During the past month, what time have you usually gone to bed at night?</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="number" id="bedtime_hour" name="bedtime_hour" min="1" max="12" required style="width:60px;"> :
+                    <input type="number" id="bedtime_min" name="bedtime_min" min="0" max="59" required style="width:60px;">
+                    <button type="button" id="bedtime_ampm" class="ampm-toggle">PM</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="sleep_latency" class="required">2. During the past month, how long (in minutes) has it usually taken you to fall asleep each night?</label>
+                <input type="number" id="sleep_latency" name="sleep_latency" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="wakeup" class="required">3. During the past month, what time have you usually gotten up in the morning?</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="number" id="wakeup_hour" name="wakeup_hour" min="1" max="12" required style="width:60px;"> :
+                    <input type="number" id="wakeup_min" name="wakeup_min" min="0" max="59" required style="width:60px;">
+                    <button type="button" id="wakeup_ampm" class="ampm-toggle">AM</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="sleep_hours" class="required">4. During the past month, how many hours of actual sleep did you get at night? (This may be different than the
+                    number of hours you spent in bed.)</label>
+                <input type="number" id="sleep_hours" name="sleep_hours" min="0" step="0.1" required>
+            </div>
+            <div class="section-title">Sleep Disturbances</div>
+            <div class="form-group">
+                <label>5. During the past month, how often have you had trouble sleeping because you:</label>
+                <table class="psqi-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Not during the past month</th>
+                            <th>Less than once a week</th>
+                            <th>Once or twice a week</th>
+                            <th>Three or more times a week</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>a. Cannot get to sleep within 30 minutes</td>
+                            <td><input type="radio" name="q5a" value="0" required></td>
+                            <td><input type="radio" name="q5a" value="1"></td>
+                            <td><input type="radio" name="q5a" value="2"></td>
+                            <td><input type="radio" name="q5a" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Wake up in the middle of the night or early morning</td>
+                            <td><input type="radio" name="q5b" value="0" required></td>
+                            <td><input type="radio" name="q5b" value="1"></td>
+                            <td><input type="radio" name="q5b" value="2"></td>
+                            <td><input type="radio" name="q5b" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Have to get up to use the bathroom</td>
+                            <td><input type="radio" name="q5c" value="0" required></td>
+                            <td><input type="radio" name="q5c" value="1"></td>
+                            <td><input type="radio" name="q5c" value="2"></td>
+                            <td><input type="radio" name="q5c" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Cannot breathe comfortably</td>
+                            <td><input type="radio" name="q5d" value="0" required></td>
+                            <td><input type="radio" name="q5d" value="1"></td>
+                            <td><input type="radio" name="q5d" value="2"></td>
+                            <td><input type="radio" name="q5d" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Cough or snore loudly</td>
+                            <td><input type="radio" name="q5e" value="0" required></td>
+                            <td><input type="radio" name="q5e" value="1"></td>
+                            <td><input type="radio" name="q5e" value="2"></td>
+                            <td><input type="radio" name="q5e" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>f. Feel too cold</td>
+                            <td><input type="radio" name="q5f" value="0" required></td>
+                            <td><input type="radio" name="q5f" value="1"></td>
+                            <td><input type="radio" name="q5f" value="2"></td>
+                            <td><input type="radio" name="q5f" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>g. Feel too hot</td>
+                            <td><input type="radio" name="q5g" value="0" required></td>
+                            <td><input type="radio" name="q5g" value="1"></td>
+                            <td><input type="radio" name="q5g" value="2"></td>
+                            <td><input type="radio" name="q5g" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>h. Have bad dreams</td>
+                            <td><input type="radio" name="q5h" value="0" required></td>
+                            <td><input type="radio" name="q5h" value="1"></td>
+                            <td><input type="radio" name="q5h" value="2"></td>
+                            <td><input type="radio" name="q5h" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>i. Have pain</td>
+                            <td><input type="radio" name="q5i" value="0" required></td>
+                            <td><input type="radio" name="q5i" value="1"></td>
+                            <td><input type="radio" name="q5i" value="2"></td>
+                            <td><input type="radio" name="q5i" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>j. Other reason(s), please describe <input type="text" id="q5j_text" name="q5j_text" placeholder="Describe other reason(s)"></td>
+                            <td><input type="radio" name="q5j" value="0" required></td>
+                            <td><input type="radio" name="q5j" value="1"></td>
+                            <td><input type="radio" name="q5j" value="2"></td>
+                            <td><input type="radio" name="q5j" value="3"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="section-title">Other Questions</div>
+            <div class="form-group">
+                <label for="medication" class="required">6. During the past month, how often have you taken medicine (prescribed or over the counter) to help you sleep?</label>
+                <table class="psqi-table">
+                    <tr>
+                        <th></th>
+                        <th>Not during the past month</th>
+                        <th>Less than once a week</th>
+                        <th>Once or twice a week</th>
+                        <th>Three or more times a week</th>
+                    </tr>
+                    <tr>
+                        <td>Medicine to help you sleep</td>
+                        <td><input type="radio" name="medication" value="0" required></td>
+                        <td><input type="radio" name="medication" value="1"></td>
+                        <td><input type="radio" name="medication" value="2"></td>
+                        <td><input type="radio" name="medication" value="3"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <label for="trouble_staying_awake" class="required">7. During the past month, how often have you had trouble staying awake while driving, eating meals, or engaging in social activity?</label>
+                <table class="psqi-table">
+                    <tr>
+                        <th></th>
+                        <th>Not during the past month</th>
+                        <th>Less than once a week</th>
+                        <th>Once or twice a week</th>
+                        <th>Three or more times a week</th>
+                    </tr>
+                    <tr>
+                        <td>Staying awake during the day</td>
+                        <td><input type="radio" name="trouble_staying_awake" value="0" required></td>
+                        <td><input type="radio" name="trouble_staying_awake" value="1"></td>
+                        <td><input type="radio" name="trouble_staying_awake" value="2"></td>
+                        <td><input type="radio" name="trouble_staying_awake" value="3"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <label for="enthusiasm" class="required">8. During the past month, how much of a problem has it been for you to keep up enough enthusiasm to get things done?</label>
+                <table class="psqi-table">
+                    <tr>
+                        <th></th>
+                        <th>No problem at all</th>
+                        <th>Only a very slight problem</th>
+                        <th>Somewhat of a problem</th>
+                        <th>A very big problem</th>
+                    </tr>
+                    <tr>
+                        <td>Enthusiasm for getting things done</td>
+                        <td><input type="radio" name="enthusiasm" value="0" required></td>
+                        <td><input type="radio" name="enthusiasm" value="1"></td>
+                        <td><input type="radio" name="enthusiasm" value="2"></td>
+                        <td><input type="radio" name="enthusiasm" value="3"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <label for="sleep_quality" class="required">9. During the past month, how would you rate your sleep quality overall?</label>
+                <table class="psqi-table">
+                    <tr>
+                        <th></th>
+                        <th>Very good</th>
+                        <th>Fairly good</th>
+                        <th>Fairly bad</th>
+                        <th>Very bad</th>
+                    </tr>
+                    <tr>
+                        <td>Overall sleep quality</td>
+                        <td><input type="radio" name="sleep_quality" value="0" required></td>
+                        <td><input type="radio" name="sleep_quality" value="1"></td>
+                        <td><input type="radio" name="sleep_quality" value="2"></td>
+                        <td><input type="radio" name="sleep_quality" value="3"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <label for="bedmate_roommate" class="required">10. Do you have a bed partner or roommate?</label>
+                <select id="bedmate_roommate" name="bedmate_roommate" required onchange="toggleBedmateSection()">
+                    <option value="none">No bed partner or roommate</option>
+                    <option value="other_room">Partner/roommate in other room</option>
+                    <option value="same_room">Partner in same room, but not same bed</option>
+                    <option value="same_bed">Partner in same bed</option>
+                </select>
+            </div>
+            <div id="bedmateSection" style="display:none;">
+                <div class="section-title">Bed Partner/Roommate Section</div>
+                <div class="form-group" style="font-weight: 600; color: #2c3e50;">
+                    If you have a roommate or bed partner, ask him/her how often in the past month you have had:
+                </div>
+                <table class="psqi-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Not during the past month</th>
+                            <th>Less than once a week</th>
+                            <th>Once or twice a week</th>
+                            <th>Three or more times a week</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>a. Loud snoring</td>
+                            <td><input type="radio" name="bmq_a" value="0"></td>
+                            <td><input type="radio" name="bmq_a" value="1"></td>
+                            <td><input type="radio" name="bmq_a" value="2"></td>
+                            <td><input type="radio" name="bmq_a" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Long pauses between breaths while asleep</td>
+                            <td><input type="radio" name="bmq_b" value="0"></td>
+                            <td><input type="radio" name="bmq_b" value="1"></td>
+                            <td><input type="radio" name="bmq_b" value="2"></td>
+                            <td><input type="radio" name="bmq_b" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Legs twitching or jerking while you sleep</td>
+                            <td><input type="radio" name="bmq_c" value="0"></td>
+                            <td><input type="radio" name="bmq_c" value="1"></td>
+                            <td><input type="radio" name="bmq_c" value="2"></td>
+                            <td><input type="radio" name="bmq_c" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Episodes of disorientation or confusion during sleep</td>
+                            <td><input type="radio" name="bmq_d" value="0"></td>
+                            <td><input type="radio" name="bmq_d" value="1"></td>
+                            <td><input type="radio" name="bmq_d" value="2"></td>
+                            <td><input type="radio" name="bmq_d" value="3"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Other restlessness while you sleep, please describe: <input type="text" id="bmq_e_text" name="bmq_e_text" placeholder="Describe other restlessness"></td>
+                            <td><input type="radio" name="bmq_e" value="0"></td>
+                            <td><input type="radio" name="bmq_e" value="1"></td>
+                            <td><input type="radio" name="bmq_e" value="2"></td>
+                            <td><input type="radio" name="bmq_e" value="3"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+        <button id="clearFormBtn" class="submit-button" style="background:#e74c3c;margin-top:10px;">Clear All Responses</button>
+    </div>
+    <div id="psqiScoreModal" class="modal-overlay">
+        <div class="modal">
+            <h2>Pittsburgh Sleep Quality Index Scores</h2>
+            <div id="psqiScoreDetails"></div>
+            <button class="modal-btn submit-btn" id="finalSubmitBtn">Submit</button>
+            <button class="modal-btn close-btn" onclick="closeScoreModal()">Cancel</button>
+        </div>
+    </div>
+    <script>
+        // Patient info from sessionStorage
+        window.onload = function() {
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                const patient = JSON.parse(storedPatient);
+                document.getElementById('selectedPatientInfo').textContent = `Patient: ${patient.name} (ID: ${patient.id})`;
+            } else {
+                document.getElementById('selectedPatientInfo').textContent = 'No patient selected.';
+            }
+            toggleBedmateSection();
+        }
+        function toggleBedmateSection() {
+            const val = document.getElementById('bedmate_roommate').value;
+            document.getElementById('bedmateSection').style.display = (val !== 'none') ? 'block' : 'none';
+        }
+        function calculatePSQIScores(form) {
+            // Helper to get value as int
+            const v = id => parseInt(form[id]?.value || 0);
+            // Q5 radio: get checked value
+            const vr = name => parseInt((form.querySelector(`input[name='${name}']:checked`)||{}).value || 0);
+            // Component 1: Subjective Sleep Quality (Q9)
+            const c1 = vr('sleep_quality');
+            // Component 2: Sleep Latency (Q2 + Q5a)
+            let q2 = v('sleep_latency');
+            let q5a = vr('q5a');
+            let c2 = 0;
+            if (q2 <= 15) c2 = 0;
+            else if (q2 <= 30) c2 = 1;
+            else if (q2 <= 60) c2 = 2;
+            else c2 = 3;
+            c2 += q5a;
+            if (c2 === 0) c2 = 0;
+            else if (c2 <= 2) c2 = 1;
+            else if (c2 <= 4) c2 = 2;
+            else c2 = 3;
+            // Component 3: Sleep Duration (Q4)
+            let q4 = parseFloat(form['sleep_hours']?.value || 0);
+            let c3 = 0;
+            if (q4 >= 7) c3 = 0;
+            else if (q4 >= 6) c3 = 1;
+            else if (q4 >= 5) c3 = 2;
+            else c3 = 3;
+            // Component 4: Habitual Sleep Efficiency (Q1, Q3, Q4)
+            let bedtimeObj = get24HourTime('bedtime');
+            let wakeupObj = get24HourTime('wakeup');
+            let b = bedtimeObj.h * 60 + bedtimeObj.m;
+            let w = wakeupObj.h * 60 + wakeupObj.m;
+            let diff = w - b;
+            if (diff <= 0) diff += 24 * 60;
+            let timeInBed = diff / 60;
+            let sleepEff = (timeInBed > 0) ? (q4 / timeInBed) * 100 : 0;
+            let c4 = 0;
+            if (sleepEff >= 85) c4 = 0;
+            else if (sleepEff >= 75) c4 = 1;
+            else if (sleepEff >= 65) c4 = 2;
+            else c4 = 3;
+            // Component 5: Sleep Disturbances (Q5b–Q5j)
+            let dist = 0;
+            for (let k of ['q5b','q5c','q5d','q5e','q5f','q5g','q5h','q5i','q5j']) dist += vr(k);
+            let c5 = 0;
+            if (dist === 0) c5 = 0;
+            else if (dist <= 9) c5 = 1;
+            else if (dist <= 18) c5 = 2;
+            else c5 = 3;
+            // Component 6: Use of Sleeping Medication (Q6)
+            let c6 = vr('medication');
+            // Component 7: Daytime Dysfunction (Q7 + Q8)
+            let c7 = vr('trouble_staying_awake') + vr('enthusiasm');
+            if (c7 === 0) c7 = 0;
+            else if (c7 <= 2) c7 = 1;
+            else if (c7 <= 4) c7 = 2;
+            else c7 = 3;
+            // Global Score
+            let global = c1 + c2 + c3 + c4 + c5 + c6 + c7;
+            return {
+                components: [c1, c2, c3, c4, c5, c6, c7],
+                global,
+                details: [
+                    {name: 'Subjective Sleep Quality', desc: 'Your overall sleep quality (Q9)', score: c1},
+                    {name: 'Sleep Latency', desc: 'How long it takes to fall asleep (Q2 + Q5a)', score: c2},
+                    {name: 'Sleep Duration', desc: 'How many hours you sleep (Q4)', score: c3},
+                    {name: 'Habitual Sleep Efficiency', desc: 'Percent of time in bed spent asleep (Q1, Q3, Q4)', score: c4},
+                    {name: 'Sleep Disturbances', desc: 'How often your sleep is disturbed (Q5b–Q5j)', score: c5},
+                    {name: 'Use of Sleeping Medication', desc: 'How often you use sleep medication (Q6)', score: c6},
+                    {name: 'Daytime Dysfunction', desc: 'Problems staying awake/enthusiasm (Q7 + Q8)', score: c7},
+                ],
+                sleepEff: Math.round(sleepEff),
+                timeInBed: timeInBed
+            };
+        }
+        // Option label maps for radio questions
+        const PSQI_LABELS = {
+            q5: ["Not during the past month", "Less than once a week", "Once or twice a week", "Three or more times a week"],
+            medication: ["Not during the past month", "Less than once a week", "Once or twice a week", "Three or more times a week"],
+            trouble_staying_awake: ["Not during the past month", "Less than once a week", "Once or twice a week", "Three or more times a week"],
+            enthusiasm: ["No problem at all", "Only a very slight problem", "Somewhat of a problem", "A very big problem"],
+            sleep_quality: ["Very good", "Fairly good", "Fairly bad", "Very bad"]
+        };
+        const PSQI_QUESTIONS = {
+            bedtime: {label: "1. Usual bedtime"},
+            sleep_latency: {label: "2. Time to fall asleep (minutes)"},
+            wakeup: {label: "3. Usual wake-up time"},
+            sleep_hours: {label: "4. Hours of actual sleep per night"},
+            q5a: {label: "5a. Cannot get to sleep within 30 minutes", group: "q5"},
+            q5b: {label: "5b. Wake up in the middle of the night or early morning", group: "q5"},
+            q5c: {label: "5c. Have to get up to use the bathroom", group: "q5"},
+            q5d: {label: "5d. Cannot breathe comfortably", group: "q5"},
+            q5e: {label: "5e. Cough or snore loudly", group: "q5"},
+            q5f: {label: "5f. Feel too cold", group: "q5"},
+            q5g: {label: "5g. Feel too hot", group: "q5"},
+            q5h: {label: "5h. Have bad dreams", group: "q5"},
+            q5i: {label: "5i. Have pain", group: "q5"},
+            q5j: {label: "5j. Other reason(s)", group: "q5"},
+            q5j_text: {label: "5j. Other reason(s) - description"},
+            medication: {label: "6. Use of sleep medication", group: "medication"},
+            trouble_staying_awake: {label: "7. Trouble staying awake", group: "trouble_staying_awake"},
+            enthusiasm: {label: "8. Enthusiasm problem", group: "enthusiasm"},
+            sleep_quality: {label: "9. Overall sleep quality", group: "sleep_quality"}
+        };
+        function getRadioLabel(name, value) {
+            if (PSQI_LABELS[name]) return PSQI_LABELS[name][value] || value;
+            if (name.startsWith('q5')) return PSQI_LABELS.q5[value] || value;
+            return value;
+        }
+        function getFormValue(form, name) {
+            const el = form[name];
+            if (!el) return '';
+            if (el.type === 'radio' || el.type === 'checkbox') {
+                const checked = form.querySelector(`input[name='${name}']:checked`);
+                return checked ? checked.value : '';
+            }
+            return el.value;
+        }
+        function showScoreModal(scores) {
+            const form = document.getElementById('psqiForm');
+            // Helper to get per-question score for components where applicable
+            function getQuestionScore(compIdx, qKey) {
+                // Component 1: Q9 (sleep_quality)
+                if (compIdx === 0 && qKey === 'sleep_quality') return scores.components[0];
+                // Component 2: Q2 and Q5a
+                if (compIdx === 1) {
+                    if (qKey === 'sleep_latency') {
+                        const v = parseInt(getFormValue(form, 'sleep_latency') || 0);
+                        if (v <= 15) return 0;
+                        if (v <= 30) return 1;
+                        if (v <= 60) return 2;
+                        return 3;
+                    }
+                    if (qKey === 'q5a') {
+                        return parseInt(getFormValue(form, 'q5a') || 0);
+                    }
+                }
+                // Component 3: Q4
+                if (compIdx === 2 && qKey === 'sleep_hours') {
+                    const v = parseFloat(getFormValue(form, 'sleep_hours') || 0);
+                    if (v >= 7) return 0;
+                    if (v >= 6) return 1;
+                    if (v >= 5) return 2;
+                    return 3;
+                }
+                // Component 4: no per-question score (derived from all)
+                // Component 5: Q5b-Q5j (each 0-3)
+                if (compIdx === 4 && qKey.startsWith('q5')) {
+                    return parseInt(getFormValue(form, qKey) || 0);
+                }
+                // Component 6: Q6
+                if (compIdx === 5 && qKey === 'medication') return scores.components[5];
+                // Component 7: Q7, Q8
+                if (compIdx === 6) {
+                    if (qKey === 'trouble_staying_awake') return parseInt(getFormValue(form, 'trouble_staying_awake') || 0);
+                    if (qKey === 'enthusiasm') return parseInt(getFormValue(form, 'enthusiasm') || 0);
+                }
+                return '';
+            }
+            // Detailed breakdown for each component
+            const breakdown = [
+                {
+                    name: 'Subjective Sleep Quality',
+                    desc: 'Your overall sleep quality (Q9)',
+                    score: scores.components[0],
+                    questions: [
+                        {
+                            key: 'sleep_quality',
+                            label: PSQI_QUESTIONS.sleep_quality.label,
+                            response: getRadioLabel('sleep_quality', getFormValue(form, 'sleep_quality')),
+                            value: getFormValue(form, 'sleep_quality'),
+                        }
+                    ]
+                },
+                {
+                    name: 'Sleep Latency',
+                    desc: 'How long it takes to fall asleep (Q2 + Q5a)',
+                    score: scores.components[1],
+                    questions: [
+                        {
+                            key: 'sleep_latency',
+                            label: PSQI_QUESTIONS.sleep_latency.label,
+                            response: getFormValue(form, 'sleep_latency') + ' min',
+                            value: getFormValue(form, 'sleep_latency'),
+                        },
+                        {
+                            key: 'q5a',
+                            label: PSQI_QUESTIONS.q5a.label,
+                            response: getRadioLabel('q5', getFormValue(form, 'q5a')),
+                            value: getFormValue(form, 'q5a'),
+                        }
+                    ]
+                },
+                {
+                    name: 'Sleep Duration',
+                    desc: 'How many hours you sleep (Q4)',
+                    score: scores.components[2],
+                    questions: [
+                        {
+                            key: 'sleep_hours',
+                            label: PSQI_QUESTIONS.sleep_hours.label,
+                            response: getFormValue(form, 'sleep_hours') + ' hours',
+                            value: getFormValue(form, 'sleep_hours'),
+                        }
+                    ]
+                },
+                {
+                    name: 'Habitual Sleep Efficiency',
+                    desc: 'Percent of time in bed spent asleep (Q1, Q3, Q4)',
+                    score: scores.components[3],
+                    questions: [
+                        {
+                            key: 'bedtime',
+                            label: PSQI_QUESTIONS.bedtime.label,
+                            response: getFormValue(form, 'bedtime'),
+                            value: getFormValue(form, 'bedtime'),
+                        },
+                        {
+                            key: 'wakeup',
+                            label: PSQI_QUESTIONS.wakeup.label,
+                            response: getFormValue(form, 'wakeup'),
+                            value: getFormValue(form, 'wakeup'),
+                        },
+                        {
+                            key: 'sleep_hours',
+                            label: PSQI_QUESTIONS.sleep_hours.label,
+                            response: getFormValue(form, 'sleep_hours') + ' hours',
+                            value: getFormValue(form, 'sleep_hours'),
+                        }
+                    ]
+                },
+                {
+                    name: 'Sleep Disturbances',
+                    desc: 'How often your sleep is disturbed (Q5b–Q5j)',
+                    score: scores.components[4],
+                    questions: [
+                        ...['q5b','q5c','q5d','q5e','q5f','q5g','q5h','q5i','q5j'].map(k => ({
+                            key: k,
+                            label: PSQI_QUESTIONS[k].label,
+                            response: getRadioLabel('q5', getFormValue(form, k)),
+                            value: getFormValue(form, k),
+                        })),
+                        {
+                            key: 'q5j_text',
+                            label: PSQI_QUESTIONS.q5j_text.label,
+                            response: getFormValue(form, 'q5j_text'),
+                            value: getFormValue(form, 'q5j_text'),
+                        }
+                    ]
+                },
+                {
+                    name: 'Use of Sleeping Medication',
+                    desc: 'How often you use sleep medication (Q6)',
+                    score: scores.components[5],
+                    questions: [
+                        {
+                            key: 'medication',
+                            label: PSQI_QUESTIONS.medication.label,
+                            response: getRadioLabel('medication', getFormValue(form, 'medication')),
+                            value: getFormValue(form, 'medication'),
+                        }
+                    ]
+                },
+                {
+                    name: 'Daytime Dysfunction',
+                    desc: 'Problems staying awake/enthusiasm (Q7 + Q8)',
+                    score: scores.components[6],
+                    questions: [
+                        {
+                            key: 'trouble_staying_awake',
+                            label: PSQI_QUESTIONS.trouble_staying_awake.label,
+                            response: getRadioLabel('trouble_staying_awake', getFormValue(form, 'trouble_staying_awake')),
+                            value: getFormValue(form, 'trouble_staying_awake'),
+                        },
+                        {
+                            key: 'enthusiasm',
+                            label: PSQI_QUESTIONS.enthusiasm.label,
+                            response: getRadioLabel('enthusiasm', getFormValue(form, 'enthusiasm')),
+                            value: getFormValue(form, 'enthusiasm'),
+                        }
+                    ]
+                }
+            ];
+            // Render detailed breakdown
+            const details = breakdown.map((comp, idx) => {
+                // For Component 4, override the response for bedtime and wakeup to show AM/PM
+                let questions = comp.questions;
+                if (idx === 3) {
+                    const bh = document.getElementById('bedtime_hour').value;
+                    const bm = document.getElementById('bedtime_min').value.padStart(2, '0');
+                    const ba = document.getElementById('bedtime_ampm').textContent;
+                    const wh = document.getElementById('wakeup_hour').value;
+                    const wm = document.getElementById('wakeup_min').value.padStart(2, '0');
+                    const wa = document.getElementById('wakeup_ampm').textContent;
+                    questions = questions.map(q => {
+                        if (q.key === 'bedtime') {
+                            return {...q, response: `${bh}:${bm} ${ba}`};
+                        }
+                        if (q.key === 'wakeup') {
+                            return {...q, response: `${wh}:${wm} ${wa}`};
+                        }
+                        return q;
+                    });
+                }
+                let extra = '';
+                if (idx === 3) {
+                    extra = `<div style='margin:4px 0 8px 0;font-size:0.97em;color:#555;'>Sleep Efficiency: <b>${scores.sleepEff}%</b> (Time in bed: ${scores.timeInBed.toFixed(2)} hrs)</div>`;
+                }
+                return `
+                    <div style='text-align:left;margin-bottom:18px;'>
+                        <b>Component ${idx+1}: ${comp.name} (Score: <span style=\"color:#2980b9\">${comp.score}</span>)</b><br>
+                        <span style='font-size:0.97em;color:#888;'>${comp.desc}</span>
+                        ${extra}
+                        <table style='width:100%;margin-top:6px;margin-bottom:0;font-size:0.97em;'>
+                            <tr><th style='text-align:left;'>Question</th><th style='text-align:left;'>Response</th><th style='text-align:left;'>Score</th></tr>
+                            ${questions.map(q => `
+                                <tr>
+                                    <td>${q.label}</td>
+                                    <td>${q.response}</td>
+                                    <td>${getQuestionScore(idx, q.key) !== '' ? getQuestionScore(idx, q.key) : '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('psqiScoreDetails').innerHTML = `
+                ${details}
+                <div style='font-weight:bold;text-align:left;margin-bottom:10px;'>
+                    Global PSQI Score: <span style='color:#2980b9;font-size:1.2em;'>${scores.global}</span><br>
+                    <span style='color:${scores.global>5?'#e74c3c':'#27ae60'};'>
+                        ${scores.global>5 ? 'Poor sleep quality (global score > 5)' : 'Good sleep quality (global score ≤ 5)'}
+                    </span>
+                </div>
+            `;
+            document.getElementById('psqiScoreModal').style.display = 'flex';
+        }
+        function closeScoreModal() {
+            document.getElementById('psqiScoreModal').style.display = 'none';
+        }
+        document.getElementById('psqiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const scores = calculatePSQIScores(this);
+            showScoreModal(scores);
+            // Store scores for final submit
+            window._psqiScores = scores;
+        });
+        document.getElementById('finalSubmitBtn').onclick = async function() {
+            const form = document.getElementById('psqiForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Add scores to the data
+            data.scores = window._psqiScores;
+            
+            try {
+                const response = await fetch('http://localhost:5000/submit_psqi', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('Data submitted successfully!');
+                    form.reset();
+                    closeScoreModal();
+                    // Restore patient info if needed
+                    const storedPatient = sessionStorage.getItem('selectedPatient');
+                    if (storedPatient) {
+                        const patient = JSON.parse(storedPatient);
+                        document.getElementById('patientId').value = patient.id;
+                        document.getElementById('patientName').value = patient.name;
+                    }
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting data. Please try again.');
+            }
+        };
+        document.getElementById('clearFormBtn').onclick = function() {
+            document.getElementById('psqiForm').reset();
+            toggleBedmateSection();
+        };
+        // AM/PM toggle logic
+        function setupAMPMToggle(id) {
+            const btn = document.getElementById(id);
+            btn.onclick = function() {
+                btn.textContent = btn.textContent === 'AM' ? 'PM' : 'AM';
+            };
+        }
+        setupAMPMToggle('bedtime_ampm');
+        setupAMPMToggle('wakeup_ampm');
+        // Helper to get 24h time from fields
+        function get24HourTime(prefix) {
+            const hour = parseInt(document.getElementById(prefix+'_hour').value || 0);
+            const min = parseInt(document.getElementById(prefix+'_min').value || 0);
+            const ampm = document.getElementById(prefix+'_ampm').textContent;
+            let h = hour % 12;
+            if (ampm === 'PM') h += 12;
+            if (ampm === 'AM' && hour === 12) h = 0;
+            return {h, m: min};
+        }
+    </script>
+</body>
+</html> 
