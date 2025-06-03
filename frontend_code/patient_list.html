@@ -7,7 +7,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -31,6 +31,7 @@
         window.deleteDoc = deleteDoc;
         window.doc = doc;
         window.updateDoc = updateDoc;
+        window.getDoc = getDoc;
     </script>
     <style>
         body { background: #f5f6fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
@@ -172,13 +173,18 @@
 
         // Edit patient
         async function editPatient(docId, currentName) {
+            const patient = await getDoc(doc(db, 'patients', docId));
+            const currentId = patient.data().id;
             const newName = prompt('Enter new name:', currentName);
-            if (!newName) return;
+            if (newName === null) return;
+            const newId = prompt('Enter new ID:', currentId);
+            if (newId === null) return;
 
             try {
                 const patientRef = doc(db, 'patients', docId);
                 await updateDoc(patientRef, {
-                    name: newName
+                    name: newName,
+                    id: newId
                 });
 
                 alert('Patient updated successfully!');
