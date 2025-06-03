@@ -463,21 +463,50 @@
     <script type="module">
         // ... existing Firebase and patient management code ...
         document.getElementById('exportExcelBtn').addEventListener('click', async () => {
-            const { getFirestore, collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-            const db = getFirestore(app);
-            const querySnapshot = await getDocs(collection(db, 'patients'));
-            const data = [];
-            querySnapshot.forEach(doc => {
-                data.push(doc.data());
-            });
-            if (data.length === 0) {
-                alert('No data to export!');
-                return;
+            try {
+                const { getFirestore, collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                const db = getFirestore(app);
+                const querySnapshot = await getDocs(collection(db, 'patients'));
+                const data = [];
+                
+                querySnapshot.forEach(doc => {
+                    const patientData = doc.data();
+                    // Convert Timestamp to readable date if it exists
+                    if (patientData.createdAt) {
+                        patientData.createdAt = patientData.createdAt.toDate().toLocaleString();
+                    }
+                    // Add document ID to the data
+                    patientData.documentId = doc.id;
+                    data.push(patientData);
+                });
+
+                if (data.length === 0) {
+                    alert('No data to export!');
+                    return;
+                }
+
+                // Create worksheet
+                const ws = XLSX.utils.json_to_sheet(data);
+                
+                // Set column widths
+                const wscols = [
+                    {wch: 15}, // Patient ID
+                    {wch: 30}, // Name
+                    {wch: 25}, // Created At
+                    {wch: 30}  // Document ID
+                ];
+                ws['!cols'] = wscols;
+
+                // Create workbook
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Patients");
+
+                // Generate Excel file
+                XLSX.writeFile(wb, "patients_export.xlsx");
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting data: ' + error.message);
             }
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Patients");
-            XLSX.writeFile(wb, "patients.xlsx");
         });
     </script>
 </body>
