@@ -150,7 +150,22 @@
         </form>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtAmUF5c_VY3eUXZQEyKN8oxM_zmj9mOs",
+            authDomain: "patient-dashboard-500d2.firebaseapp.com",
+            projectId: "patient-dashboard-500d2",
+            storageBucket: "patient-dashboard-500d2.appspot.com",
+            messagingSenderId: "178852814723",
+            appId: "1:178852814723:web:b92ae5e5009a1a7e66e0b6"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         // Get patient information from sessionStorage
         window.onload = function() {
             const storedPatient = sessionStorage.getItem('selectedPatient');
@@ -170,26 +185,15 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
-            
+            data.createdAt = serverTimestamp();
             try {
-                const response = await fetch('http://localhost:5000/submit_biomarkers', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (response.ok) {
-                    alert('Data submitted successfully!');
-                    e.target.reset();
-                    // Keep the patient information
-                    const patient = JSON.parse(sessionStorage.getItem('selectedPatient'));
-                    document.getElementById('patientId').value = patient.id;
-                    document.getElementById('patientName').value = patient.name;
-                } else {
-                    throw new Error('Network response was not ok');
-                }
+                await addDoc(collection(db, 'biomarkers'), data);
+                alert('Data submitted successfully!');
+                e.target.reset();
+                // Keep the patient information
+                const patient = JSON.parse(sessionStorage.getItem('selectedPatient'));
+                document.getElementById('patientId').value = patient.id;
+                document.getElementById('patientName').value = patient.name;
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error submitting data. Please try again.');
