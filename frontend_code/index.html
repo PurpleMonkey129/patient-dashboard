@@ -7,7 +7,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
         
@@ -27,10 +27,156 @@
         const auth = getAuth(app);
         const storage = getStorage(app);
 
-        // Make Firebase services available globally
-        window.db = db;
-        window.auth = auth;
-        window.storage = storage;
+        // Firestore-based patient management
+        let patients = [];
+        let selectedPatient = null;
+
+        async function fetchPatients() {
+            const patientsCollection = collection(db, 'patients');
+            const querySnapshot = await getDocs(patientsCollection);
+            patients = [];
+            querySnapshot.forEach((docSnap) => {
+                patients.push({ id: docSnap.data().id, name: docSnap.data().name, docId: docSnap.id });
+            });
+            updatePatientList();
+            updatePatientSelect();
+        }
+
+        async function addPatient() {
+            const patientId = document.getElementById('patientId').value.trim();
+            const patientName = document.getElementById('patientName').value.trim();
+
+            if (patientId && patientName) {
+                // Check if patient ID already exists
+                if (patients.some(p => p.id === patientId)) {
+                    alert('Patient ID already exists!');
+                    return;
+                }
+                try {
+                    await addDoc(collection(db, 'patients'), {
+                        id: patientId,
+                        name: patientName,
+                        createdAt: serverTimestamp()
+                    });
+                    await fetchPatients();
+                    document.getElementById('patientId').value = '';
+                    document.getElementById('patientName').value = '';
+                } catch (error) {
+                    alert('Error adding patient: ' + error.message);
+                }
+            } else {
+                alert('Please enter both Patient ID and Name');
+            }
+        }
+
+        async function deletePatient(id) {
+            const patient = patients.find(p => p.id === id);
+            if (!patient) return;
+            if (confirm('Are you sure you want to delete this patient?')) {
+                try {
+                    await deleteDoc(doc(db, 'patients', patient.docId));
+                    await fetchPatients();
+                    if (selectedPatient && selectedPatient.id === id) {
+                        selectedPatient = null;
+                        sessionStorage.removeItem('selectedPatient');
+                        document.getElementById('selectedPatientInfo').style.display = 'none';
+                        const buttons = document.querySelectorAll('.option-button');
+                        buttons.forEach(button => button.disabled = true);
+                    }
+                } catch (error) {
+                    alert('Error deleting patient: ' + error.message);
+                }
+            }
+        }
+
+        function updatePatientList() {
+            const patientList = document.getElementById('patientList');
+            patientList.innerHTML = '';
+            patients.forEach(patient => {
+                const patientItem = document.createElement('div');
+                patientItem.className = 'patient-item';
+                patientItem.innerHTML = `
+                    <div class="patient-info-text">
+                        <strong>${patient.name}</strong> (ID: ${patient.id})
+                    </div>
+                    <button class="delete-button" onclick="deletePatient('${patient.id}')">Delete</button>
+                `;
+                patientList.appendChild(patientItem);
+            });
+        }
+
+        function updatePatientSelect() {
+            const select = document.getElementById('patientSelect');
+            select.innerHTML = '<option value="">Select a patient...</option>';
+            patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = `${patient.id}|${patient.name}`;
+                option.textContent = `${patient.name} (ID: ${patient.id})`;
+                select.appendChild(option);
+            });
+        }
+
+        function handlePatientSelect() {
+            const select = document.getElementById('patientSelect');
+            const selectedValue = select.value;
+            if (selectedValue) {
+                const [id, name] = selectedValue.split('|');
+                document.getElementById('patientId').value = id;
+                document.getElementById('patientName').value = name;
+            }
+        }
+
+        function selectPatient() {
+            const select = document.getElementById('patientSelect');
+            const selectedValue = select.value;
+            if (selectedValue) {
+                const [id, name] = selectedValue.split('|');
+                const patient = patients.find(p => p.id === id && p.name === name);
+                if (patient) {
+                    setSelectedPatient(patient);
+                }
+            } else {
+                alert('Please select a patient from the list');
+            }
+        }
+
+        function setSelectedPatient(patient) {
+            selectedPatient = patient;
+            sessionStorage.setItem('selectedPatient', JSON.stringify(patient));
+            document.getElementById('selectedPatientInfo').style.display = 'block';
+            document.getElementById('currentPatientInfo').textContent = `${patient.name} (ID: ${patient.id})`;
+            const buttons = document.querySelectorAll('.option-button');
+            buttons.forEach(button => button.disabled = false);
+        }
+
+        function openForm(formType) {
+            if (!selectedPatient) {
+                alert('Please select a patient first');
+                return;
+            }
+            window.open(`${formType}.html`, '_blank');
+        }
+
+        window.fetchPatients = fetchPatients;
+        window.addPatient = addPatient;
+        window.deletePatient = deletePatient;
+        window.handlePatientSelect = handlePatientSelect;
+        window.selectPatient = selectPatient;
+        window.openForm = openForm;
+
+        window.onload = function() {
+            fetchPatients();
+            // Check if there's a selected patient in sessionStorage
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                selectedPatient = JSON.parse(storedPatient);
+                document.getElementById('selectedPatientInfo').style.display = 'block';
+                document.getElementById('currentPatientInfo').textContent = 
+                    `${selectedPatient.name} (ID: ${selectedPatient.id})`;
+                const buttons = document.querySelectorAll('.option-button');
+                buttons.forEach(button => button.disabled = false);
+            }
+        }
     </script>
     <style>
         * {
@@ -294,161 +440,7 @@
     </div>
 
     <script>
-        let patients = JSON.parse(localStorage.getItem('patients')) || [];
-        let selectedPatient = null;
-
-        function addPatient() {
-            const patientId = document.getElementById('patientId').value.trim();
-            const patientName = document.getElementById('patientName').value.trim();
-
-            if (patientId && patientName) {
-                // Check if patient ID already exists
-                if (patients.some(p => p.id === patientId)) {
-                    alert('Patient ID already exists!');
-                    return;
-                }
-
-                // Add new patient
-                patients.push({ id: patientId, name: patientName });
-                localStorage.setItem('patients', JSON.stringify(patients));
-                
-                // Update display
-                updatePatientList();
-                updatePatientSelect();
-                
-                // Clear input fields
-                document.getElementById('patientId').value = '';
-                document.getElementById('patientName').value = '';
-            } else {
-                alert('Please enter both Patient ID and Name');
-            }
-        }
-
-        function handlePatientSelect() {
-            const select = document.getElementById('patientSelect');
-            const selectedValue = select.value;
-            
-            if (selectedValue) {
-                const [id, name] = selectedValue.split('|');
-                document.getElementById('patientId').value = id;
-                document.getElementById('patientName').value = name;
-            }
-        }
-
-        function selectPatient() {
-            const select = document.getElementById('patientSelect');
-            const selectedValue = select.value;
-            
-            if (selectedValue) {
-                const [id, name] = selectedValue.split('|');
-                const patient = patients.find(p => p.id === id && p.name === name);
-                if (patient) {
-                    setSelectedPatient(patient);
-                }
-            } else {
-                alert('Please select a patient from the list');
-            }
-        }
-
-        function setSelectedPatient(patient) {
-            selectedPatient = patient;
-            sessionStorage.setItem('selectedPatient', JSON.stringify(patient));
-            
-            // Update UI
-            document.getElementById('selectedPatientInfo').style.display = 'block';
-            document.getElementById('currentPatientInfo').textContent = `${patient.name} (ID: ${patient.id})`;
-            
-            // Enable all buttons
-            const buttons = document.querySelectorAll('.option-button');
-            buttons.forEach(button => button.disabled = false);
-        }
-
-        function deletePatient(id) {
-            if (confirm('Are you sure you want to delete this patient?')) {
-                patients = patients.filter(p => p.id !== id);
-                localStorage.setItem('patients', JSON.stringify(patients));
-                updatePatientList();
-                updatePatientSelect();
-                
-                // If the deleted patient was selected, clear selection
-                if (selectedPatient && selectedPatient.id === id) {
-                    selectedPatient = null;
-                    sessionStorage.removeItem('selectedPatient');
-                    document.getElementById('selectedPatientInfo').style.display = 'none';
-                    const buttons = document.querySelectorAll('.option-button');
-                    buttons.forEach(button => button.disabled = true);
-                }
-            }
-        }
-
-        function updatePatientList() {
-            const patientList = document.getElementById('patientList');
-            patientList.innerHTML = '';
-
-            patients.forEach(patient => {
-                const patientItem = document.createElement('div');
-                patientItem.className = 'patient-item';
-                patientItem.innerHTML = `
-                    <div class="patient-info-text">
-                        <strong>${patient.name}</strong> (ID: ${patient.id})
-                    </div>
-                    <button class="delete-button" onclick="deletePatient('${patient.id}')">Delete</button>
-                `;
-                patientList.appendChild(patientItem);
-            });
-        }
-
-        function updatePatientSelect() {
-            const select = document.getElementById('patientSelect');
-            select.innerHTML = '<option value="">Select a patient...</option>';
-            
-            patients.forEach(patient => {
-                const option = document.createElement('option');
-                option.value = `${patient.id}|${patient.name}`;
-                option.textContent = `${patient.name} (ID: ${patient.id})`;
-                select.appendChild(option);
-            });
-        }
-
-        function openForm(formType) {
-            if (!selectedPatient) {
-                alert('Please select a patient first');
-                return;
-            }
-            window.open(`${formType}.html`, '_blank');
-        }
-
-        // Initialize
-        window.onload = function() {
-            updatePatientList();
-            updatePatientSelect();
-            
-            // Check if there's a selected patient in sessionStorage
-            const storedPatient = sessionStorage.getItem('selectedPatient');
-            if (storedPatient) {
-                selectedPatient = JSON.parse(storedPatient);
-                document.getElementById('selectedPatientInfo').style.display = 'block';
-                document.getElementById('currentPatientInfo').textContent = 
-                    `${selectedPatient.name} (ID: ${selectedPatient.id})`;
-                
-                // Enable all buttons
-                const buttons = document.querySelectorAll('.option-button');
-                buttons.forEach(button => button.disabled = false);
-            }
-        }
-
-        // Update all fetch URLs to use relative paths
-        async function fetchPatients() {
-            try {
-                const response = await fetch('/get_patients');
-                // ... rest of the code ...
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Update all other fetch calls similarly
-        // ... rest of the code ...
+        // ... existing code ...
     </script>
 </body>
 </html>
