@@ -464,9 +464,8 @@
         // ... existing Firebase and patient management code ...
         document.getElementById('exportExcelBtn').addEventListener('click', async () => {
             try {
-                const { getFirestore, collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-                const db = getFirestore(app);
                 const querySnapshot = await getDocs(collection(db, 'patients'));
+                const db = getFirestore(app);
                 const data = [];
                 
                 querySnapshot.forEach(doc => {
