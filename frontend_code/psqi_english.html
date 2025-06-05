@@ -383,10 +383,13 @@
             }
             toggleBedmateSection();
         }
-        function toggleBedmateSection() {
+
+        // Move toggleBedmateSection to window scope
+        window.toggleBedmateSection = function() {
             const val = document.getElementById('bedmate_roommate').value;
             document.getElementById('bedmateSection').style.display = (val !== 'none') ? 'block' : 'none';
         }
+
         function calculatePSQIScores(form) {
             // Helper to get value as int
             const v = id => parseInt(form[id]?.value || 0);
@@ -750,8 +753,6 @@
                 const storedPatient = sessionStorage.getItem('selectedPatient');
                 if (storedPatient) {
                     const patient = JSON.parse(storedPatient);
-                    document.getElementById('patientId').value = patient.id;
-                    document.getElementById('patientName').value = patient.name;
                 }
             } catch (error) {
                 console.error('Error:', error);
