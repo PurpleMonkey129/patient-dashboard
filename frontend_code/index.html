@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com https://cdn.sheetjs.com">
     <title>Patient Dashboard</title>
+    <!-- SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -439,7 +442,6 @@
 
         .dashboard-btn:hover { background: #2980b9; }
     </style>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com https://cdn.sheetjs.com">
 </head>
 <body>
     <div class="container">
@@ -505,55 +507,5 @@
             <button class="option-button" onclick="openForm('aqlq_language_select')" id="aqlqBtn" disabled>AQLQ</button>
         </div>
     </div>
-
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-    <script type="module">
-        // ... existing Firebase and patient management code ...
-        document.getElementById('exportExcelBtn').addEventListener('click', async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, 'patients'));
-                const db = getFirestore(app);
-                const data = [];
-                
-                querySnapshot.forEach(doc => {
-                    const patientData = doc.data();
-                    // Convert Timestamp to readable date if it exists
-                    if (patientData.createdAt) {
-                        patientData.createdAt = patientData.createdAt.toDate().toLocaleString();
-                    }
-                    // Add document ID to the data
-                    patientData.documentId = doc.id;
-                    data.push(patientData);
-                });
-
-                if (data.length === 0) {
-                    alert('No data to export!');
-                    return;
-                }
-
-                // Create worksheet
-                const ws = XLSX.utils.json_to_sheet(data);
-                
-                // Set column widths
-                const wscols = [
-                    {wch: 15}, // Patient ID
-                    {wch: 30}, // Name
-                    {wch: 25}, // Created At
-                    {wch: 30}  // Document ID
-                ];
-                ws['!cols'] = wscols;
-
-                // Create workbook
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Patients");
-
-                // Generate Excel file
-                XLSX.writeFile(wb, "patients_export.xlsx");
-            } catch (error) {
-                console.error('Export error:', error);
-                alert('Error exporting data: ' + error.message);
-            }
-        });
-    </script>
 </body>
 </html>
