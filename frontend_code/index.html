@@ -32,43 +32,74 @@
         // Export functionality
         document.getElementById('exportExcelBtn').addEventListener('click', async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, 'patients'));
-                const data = [];
+                // Create a new workbook
+                const wb = XLSX.utils.book_new();
                 
-                querySnapshot.forEach(doc => {
+                // Get patients data
+                const patientsSnapshot = await getDocs(collection(db, 'patients'));
+                const patientsData = [];
+                patientsSnapshot.forEach(doc => {
                     const patientData = doc.data();
-                    // Convert Timestamp to readable date if it exists
                     if (patientData.createdAt) {
                         patientData.createdAt = patientData.createdAt.toDate().toLocaleString();
                     }
-                    // Add document ID to the data
                     patientData.documentId = doc.id;
-                    data.push(patientData);
+                    patientsData.push(patientData);
                 });
 
-                if (data.length === 0) {
-                    alert('No data to export!');
-                    return;
+                // Create patients worksheet
+                if (patientsData.length > 0) {
+                    const wsPatients = XLSX.utils.json_to_sheet(patientsData);
+                    wsPatients['!cols'] = [
+                        {wch: 15}, // Patient ID
+                        {wch: 30}, // Name
+                        {wch: 25}, // Created At
+                        {wch: 30}  // Document ID
+                    ];
+                    XLSX.utils.book_append_sheet(wb, wsPatients, "Patients");
                 }
 
-                // Create worksheet
-                const ws = XLSX.utils.json_to_sheet(data);
-                
-                // Set column widths
-                const wscols = [
-                    {wch: 15}, // Patient ID
-                    {wch: 30}, // Name
-                    {wch: 25}, // Created At
-                    {wch: 30}  // Document ID
+                // Get and add data from other collections
+                const collections = [
+                    'patient_details',
+                    'anthropometric',
+                    'biomarkers',
+                    'vitals',
+                    'hrv',
+                    'caft',
+                    'brs',
+                    'p300',
+                    'reaction_time',
+                    'psqi',
+                    'aqlq'
                 ];
-                ws['!cols'] = wscols;
 
-                // Create workbook
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Patients");
+                for (const collectionName of collections) {
+                    const snapshot = await getDocs(collection(db, collectionName));
+                    const data = [];
+                    snapshot.forEach(doc => {
+                        const docData = doc.data();
+                        // Convert any Timestamp fields to readable dates
+                        Object.keys(docData).forEach(key => {
+                            if (docData[key] && docData[key].toDate) {
+                                docData[key] = docData[key].toDate().toLocaleString();
+                            }
+                        });
+                        docData.documentId = doc.id;
+                        data.push(docData);
+                    });
+
+                    if (data.length > 0) {
+                        const ws = XLSX.utils.json_to_sheet(data);
+                        // Set column widths based on data
+                        const wscols = Object.keys(data[0]).map(() => ({wch: 20}));
+                        ws['!cols'] = wscols;
+                        XLSX.utils.book_append_sheet(wb, ws, collectionName);
+                    }
+                }
 
                 // Generate Excel file
-                XLSX.writeFile(wb, "patients_export.xlsx");
+                XLSX.writeFile(wb, "patient_data_export.xlsx");
             } catch (error) {
                 console.error('Export error:', error);
                 alert('Error exporting data: ' + error.message);
