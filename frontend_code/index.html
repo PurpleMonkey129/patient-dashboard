@@ -219,6 +219,49 @@
             }
         }
 
+        // --- Status Completion Section Logic ---
+        const formCollections = [
+            { name: 'Patient Details', collection: 'patient_details' },
+            { name: 'Anthropometric', collection: 'anthropometric' },
+            { name: 'Biomarkers', collection: 'biomarkers' },
+            { name: 'Vitals', collection: 'vitals' },
+            { name: 'HRV', collection: 'hrv' },
+            { name: 'CAFT', collection: 'caft' },
+            { name: 'BRS', collection: 'brs' },
+            { name: 'P300', collection: 'p300' },
+            { name: 'Reaction Time', collection: 'reaction_time' },
+            { name: 'PSQI', collection: 'psqi_english' },
+            { name: 'AQLQ', collection: 'aqlq_english' }
+        ];
+
+        async function updateCompletionStatus(patient) {
+            if (!patient) {
+                document.getElementById('completion-status-section').style.display = 'none';
+                return;
+            }
+            const tbody = document.querySelector('#completion-status-table tbody');
+            tbody.innerHTML = '';
+            for (const form of formCollections) {
+                // Query the collection for a document with this patient ID
+                const querySnapshot = await getDocs(collection(db, form.collection));
+                let completed = false;
+                querySnapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.id === patient.id) completed = true;
+                });
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding:8px; border-bottom:1px solid #eee;">${form.name}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">
+                        ${completed ? '<span style="color:green;font-weight:bold;">✔️ Completed</span>' : '<span style="color:red;font-weight:bold;">✖️ Not Completed</span>'}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+            document.getElementById('completion-status-section').style.display = 'block';
+        }
+
+        // Update setSelectedPatient to also update status
         function setSelectedPatient(patient) {
             selectedPatient = patient;
             sessionStorage.setItem('selectedPatient', JSON.stringify(patient));
@@ -226,23 +269,10 @@
             document.getElementById('currentPatientInfo').textContent = `${patient.name} (ID: ${patient.id})`;
             const buttons = document.querySelectorAll('.option-button');
             buttons.forEach(button => button.disabled = false);
+            updateCompletionStatus(patient);
         }
 
-        function openForm(formType) {
-            if (!selectedPatient) {
-                alert('Please select a patient first');
-                return;
-            }
-            window.open(`${formType}.html`, '_blank');
-        }
-
-        window.fetchPatients = fetchPatients;
-        window.addPatient = addPatient;
-        window.deletePatient = deletePatient;
-        window.handlePatientSelect = handlePatientSelect;
-        window.selectPatient = selectPatient;
-        window.openForm = openForm;
-
+        // Also update status on page load if patient is selected
         window.onload = function() {
             fetchPatients();
             // Check if there's a selected patient in sessionStorage
@@ -254,8 +284,16 @@
                     `${selectedPatient.name} (ID: ${selectedPatient.id})`;
                 const buttons = document.querySelectorAll('.option-button');
                 buttons.forEach(button => button.disabled = false);
+                updateCompletionStatus(selectedPatient);
             }
         }
+
+        window.fetchPatients = fetchPatients;
+        window.addPatient = addPatient;
+        window.deletePatient = deletePatient;
+        window.handlePatientSelect = handlePatientSelect;
+        window.selectPatient = selectPatient;
+        window.openForm = openForm;
 
         document.addEventListener('DOMContentLoaded', () => {
             const addPatientForm = document.getElementById('addPatientForm');
@@ -521,6 +559,20 @@
         <div id="selectedPatientInfo" class="patient-info" style="display: none;">
             <h2>Selected Patient</h2>
             <p id="currentPatientInfo"></p>
+        </div>
+
+        <!-- Status Completion Section -->
+        <div id="completion-status-section" style="display:none; margin-bottom: 30px;">
+            <h3>Form Completion Status</h3>
+            <table id="completion-status-table" style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Form</th>
+                        <th style="text-align:left; padding:8px; border-bottom:1px solid #ccc;">Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
 
         <div class="options-grid">
