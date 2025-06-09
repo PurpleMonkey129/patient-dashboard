@@ -219,6 +219,15 @@
             }
         }
 
+        // Add back openForm function
+        function openForm(formType) {
+            if (!selectedPatient) {
+                alert('Please select a patient first');
+                return;
+            }
+            window.open(`${formType}.html`, '_blank');
+        }
+
         // --- Status Completion Section Logic ---
         const formCollections = [
             { name: 'Patient Details', collection: 'patient_details' },
@@ -288,13 +297,6 @@
             }
         }
 
-        window.fetchPatients = fetchPatients;
-        window.addPatient = addPatient;
-        window.deletePatient = deletePatient;
-        window.handlePatientSelect = handlePatientSelect;
-        window.selectPatient = selectPatient;
-        window.openForm = openForm;
-
         document.addEventListener('DOMContentLoaded', () => {
             const addPatientForm = document.getElementById('addPatientForm');
             if (addPatientForm) {
@@ -312,7 +314,27 @@
                     }
                 });
             }
+            // Add event listeners for form buttons
+            document.getElementById('patientDetailsBtn').addEventListener('click', () => openForm('patient_details'));
+            document.getElementById('anthropometricBtn').addEventListener('click', () => openForm('anthropometric'));
+            document.getElementById('biomarkersBtn').addEventListener('click', () => openForm('biomarkers'));
+            document.getElementById('vitalsBtn').addEventListener('click', () => openForm('vitals'));
+            document.getElementById('hrvBtn').addEventListener('click', () => openForm('hrv'));
+            document.getElementById('caftBtn').addEventListener('click', () => openForm('caft'));
+            document.getElementById('brsBtn').addEventListener('click', () => openForm('brs'));
+            document.getElementById('p300Btn').addEventListener('click', () => openForm('p300'));
+            document.getElementById('reactionTimeBtn').addEventListener('click', () => openForm('reaction_time'));
+            document.getElementById('psqiBtn').addEventListener('click', () => openForm('psqi_language_select'));
+            document.getElementById('aqlqBtn').addEventListener('click', () => openForm('aqlq_language_select'));
         });
+
+        // Ensure these are at the top level, after all function definitions
+        window.fetchPatients = fetchPatients;
+        window.addPatient = addPatient;
+        window.deletePatient = deletePatient;
+        window.handlePatientSelect = handlePatientSelect;
+        window.selectPatient = selectPatient;
+        window.openForm = openForm;
     </script>
     <style>
         * {
@@ -576,17 +598,17 @@
         </div>
 
         <div class="options-grid">
-            <button class="option-button" onclick="openForm('patient_details')" id="patientDetailsBtn" disabled>Patient Details</button>
-            <button class="option-button" onclick="openForm('anthropometric')" id="anthropometricBtn" disabled>Anthropometric Details</button>
-            <button class="option-button" onclick="openForm('biomarkers')" id="biomarkersBtn" disabled>Biomarkers</button>
-            <button class="option-button" onclick="openForm('vitals')" id="vitalsBtn" disabled>Vitals</button>
-            <button class="option-button" onclick="openForm('hrv')" id="hrvBtn" disabled>HRV</button>
-            <button class="option-button" onclick="openForm('caft')" id="caftBtn" disabled>CAFT</button>
-            <button class="option-button" onclick="openForm('brs')" id="brsBtn" disabled>BRS</button>
-            <button class="option-button" onclick="openForm('p300')" id="p300Btn" disabled>P300</button>
-            <button class="option-button" onclick="openForm('reaction_time')" id="reactionTimeBtn" disabled>Reaction Time</button>
-            <button class="option-button" onclick="openForm('psqi_language_select')" id="psqiBtn" disabled>PSQI</button>
-            <button class="option-button" onclick="openForm('aqlq_language_select')" id="aqlqBtn" disabled>AQLQ</button>
+            <button class="option-button" id="patientDetailsBtn" disabled>Patient Details</button>
+            <button class="option-button" id="anthropometricBtn" disabled>Anthropometric Details</button>
+            <button class="option-button" id="biomarkersBtn" disabled>Biomarkers</button>
+            <button class="option-button" id="vitalsBtn" disabled>Vitals</button>
+            <button class="option-button" id="hrvBtn" disabled>HRV</button>
+            <button class="option-button" id="caftBtn" disabled>CAFT</button>
+            <button class="option-button" id="brsBtn" disabled>BRS</button>
+            <button class="option-button" id="p300Btn" disabled>P300</button>
+            <button class="option-button" id="reactionTimeBtn" disabled>Reaction Time</button>
+            <button class="option-button" id="psqiBtn" disabled>PSQI</button>
+            <button class="option-button" id="aqlqBtn" disabled>AQLQ</button>
         </div>
     </div>
 </body>
