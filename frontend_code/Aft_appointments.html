@@ -338,7 +338,7 @@
     }
 
     // Initialize Firebase and then set up the page
-    async function initializeApp() {
+    async function initializeApplication() {
       await initializeFirebase();
       if (isFirebaseInitialized) {
         setupPage();
@@ -346,7 +346,7 @@
     }
 
     // Initialize Firebase immediately
-    initializeApp();
+    initializeApplication();
   </script>
 
   <script type="module">
