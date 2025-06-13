@@ -462,7 +462,7 @@
       // Form submission
       form.addEventListener("submit", async function (e) {
         e.preventDefault();
-        if (!isFirebaseInitialized) {
+        if (!window.isFirebaseInitialized) {
           alert("Please wait while the application initializes...");
           return;
         }
@@ -484,9 +484,10 @@
           await addDoc(window.appointmentsCollection, appointmentData);
           form.reset();
           customDate.style.display = "none";
+          console.log("Appointment added successfully:", appointmentData);
         } catch (error) {
-          console.error("Error adding appointment: ", error);
-          alert("Error adding appointment. Please try again.");
+          console.error("Error adding appointment to Firestore:", error);
+          alert("Error adding appointment. Please check the console for details.");
         }
       });
 
