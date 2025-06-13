@@ -216,9 +216,14 @@
     let appointmentsCollection;
     let retryCount = 0;
     const MAX_RETRIES = 3;
+    let isFirebaseInitialized = false;
 
     // Make functions available globally
     window.markDone = async function(appointmentId, isDone) {
+      if (!isFirebaseInitialized) {
+        alert("Please wait while the application initializes...");
+        return;
+      }
       try {
         const appointmentRef = doc(db, "appointments", appointmentId);
         await updateDoc(appointmentRef, {
@@ -231,6 +236,10 @@
     };
 
     window.deleteAppointment = async function(appointmentId) {
+      if (!isFirebaseInitialized) {
+        alert("Please wait while the application initializes...");
+        return;
+      }
       if (confirm("Are you sure you want to delete this appointment?")) {
         try {
           await deleteDoc(doc(db, "appointments", appointmentId));
@@ -242,6 +251,10 @@
     };
 
     window.editAppointment = async function(appointmentId) {
+      if (!isFirebaseInitialized) {
+        alert("Please wait while the application initializes...");
+        return;
+      }
       try {
         const appointmentRef = doc(db, "appointments", appointmentId);
         const appointmentDoc = await getDoc(appointmentRef);
@@ -308,6 +321,7 @@
         window.getDoc = getDoc;
         window.appointmentsCollection = appointmentsCollection;
 
+        isFirebaseInitialized = true;
         console.log('Firebase initialized successfully with persistent cache');
         return true;
       } catch (error) {
@@ -323,13 +337,21 @@
       }
     }
 
+    // Initialize Firebase and then set up the page
+    async function initializeApp() {
+      await initializeFirebase();
+      if (isFirebaseInitialized) {
+        setupPage();
+      }
+    }
+
     // Initialize Firebase immediately
-    initializeFirebase();
+    initializeApp();
   </script>
 
   <script type="module">
-    // Wait for Firebase to be initialized
-    document.addEventListener('DOMContentLoaded', async () => {
+    // Setup page after Firebase is initialized
+    function setupPage() {
       const form = document.getElementById("appointmentForm");
       const tableBody = document.querySelector("#appointmentsTable tbody");
       const dateSelect = document.getElementById("date");
@@ -363,7 +385,7 @@
 
       // Load appointments from Firebase
       async function loadAppointments() {
-        if (!window.appointmentsCollection) {
+        if (!isFirebaseInitialized) {
           console.error("Firebase not initialized properly");
           return;
         }
@@ -416,17 +438,16 @@
       // Add cleanup on page unload
       window.addEventListener('beforeunload', cleanup);
 
-      // Initialize the page
-      if (window.appointmentsCollection) {
-        await loadAppointments();
-      } else {
-        console.error("Firebase not initialized properly");
-        alert("Error initializing the application. Please refresh the page.");
-      }
+      // Load appointments
+      loadAppointments();
 
       // Form submission
       form.addEventListener("submit", async function (e) {
         e.preventDefault();
+        if (!isFirebaseInitialized) {
+          alert("Please wait while the application initializes...");
+          return;
+        }
 
         const appointmentData = {
           hospitalId: document.getElementById("hospitalId").value || "",
@@ -455,7 +476,7 @@
       dateSelect.addEventListener("change", () => {
         customDate.style.display = dateSelect.value === "custom" ? "block" : "none";
       });
-    });
+    }
   </script>
 
 </body>
