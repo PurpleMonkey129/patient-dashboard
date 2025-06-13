@@ -461,11 +461,27 @@
 
       // Form submission
       form.addEventListener("submit", async function (e) {
+        console.log("Form submission started"); // Debug log
         e.preventDefault();
+        
         if (!window.isFirebaseInitialized) {
+          console.error("Firebase not initialized"); // Debug log
           alert("Please wait while the application initializes...");
           return;
         }
+        console.log("Firebase is initialized, proceeding with form submission"); // Debug log
+
+        // Log all form field values
+        console.log("Form field values:", {
+          hospitalId: document.getElementById("hospitalId")?.value,
+          patientName: document.getElementById("patientName")?.value,
+          age: document.getElementById("age")?.value,
+          gender: document.getElementById("gender")?.value,
+          phone: document.getElementById("phone")?.value,
+          testType: document.getElementById("testType")?.value,
+          dateSelect: dateSelect.value,
+          customDate: customDate.value
+        });
 
         const appointmentData = {
           hospitalId: document.getElementById("hospitalId").value || "",
@@ -480,14 +496,23 @@
           createdAt: new Date().toISOString()
         };
 
+        console.log("Form data to be added:", appointmentData); // Debug log
+        console.log("Appointments collection reference:", window.appointmentsCollection); // Debug log
+
         try {
-          console.log("Form data to be added:", appointmentData); // Debug log
-          await addDoc(window.appointmentsCollection, appointmentData);
+          console.log("Attempting to add document to Firestore..."); // Debug log
+          const docRef = await addDoc(window.appointmentsCollection, appointmentData);
+          console.log("Document written with ID: ", docRef.id); // Debug log
           form.reset();
           customDate.style.display = "none";
           console.log("Appointment added successfully:", appointmentData);
         } catch (error) {
           console.error("Error adding appointment to Firestore:", error);
+          console.error("Error details:", {
+            code: error.code,
+            message: error.message,
+            stack: error.stack
+          });
           alert("Error adding appointment. Please check the console for details.");
         }
       });
