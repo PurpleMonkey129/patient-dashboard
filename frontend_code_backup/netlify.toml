@@ -1,0 +1,24 @@
+[build]
+  publish = "."
+  command = ""
+
+# Handle SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Basic security headers
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com http://localhost:5000; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com http://localhost:5000; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.firebaseio.com https://*.googleapis.com https://*.gstatic.com; style-src 'self' 'unsafe-inline';" 

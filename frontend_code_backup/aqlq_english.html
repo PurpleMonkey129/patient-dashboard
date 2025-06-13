@@ -1,0 +1,80 @@
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtAmUF5c_VY3eUXZQEyKN8oxM_zmj9mOs",
+            authDomain: "patient-dashboard-500d2.firebaseapp.com",
+            projectId: "patient-dashboard-500d2",
+            storageBucket: "patient-dashboard-500d2.appspot.com",
+            messagingSenderId: "178852814723",
+            appId: "1:178852814723:web:b92ae5e5009a1a7e66e0b6"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Get patient information from sessionStorage
+        window.onload = function() {
+            const storedPatient = sessionStorage.getItem('selectedPatient');
+            if (storedPatient) {
+                const patient = JSON.parse(storedPatient);
+                document.getElementById('patientId').value = patient.id;
+                document.getElementById('patientName').value = patient.name;
+                document.getElementById('selectedPatientInfo').textContent = 
+                    `Patient: ${patient.name} (ID: ${patient.id})`;
+            } else {
+                alert('No patient selected. Please select a patient from the dashboard.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        document.getElementById('aqlqForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Calculate domain scores
+            const activityLimitation = calculateDomainScore(['q1', 'q2', 'q3', 'q4', 'q5']);
+            const symptoms = calculateDomainScore(['q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12']);
+            const emotionalFunction = calculateDomainScore(['q13', 'q14', 'q15', 'q16', 'q17']);
+            const environmentalStimuli = calculateDomainScore(['q18', 'q19', 'q20', 'q21']);
+            
+            // Calculate total score
+            const totalScore = (activityLimitation + symptoms + emotionalFunction + environmentalStimuli) / 4;
+            
+            // Add scores to data
+            data.activityLimitation = activityLimitation;
+            data.symptoms = symptoms;
+            data.emotionalFunction = emotionalFunction;
+            data.environmentalStimuli = environmentalStimuli;
+            data.totalScore = totalScore;
+            data.createdAt = serverTimestamp();
+            
+            try {
+                await addDoc(collection(db, 'aqlq_english'), data);
+                alert('Data submitted successfully!');
+                e.target.reset();
+                // Keep the patient information
+                const patient = JSON.parse(sessionStorage.getItem('selectedPatient'));
+                document.getElementById('patientId').value = patient.id;
+                document.getElementById('patientName').value = patient.name;
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting data. Please try again.');
+            }
+        });
+
+        function calculateDomainScore(questionIds) {
+            let sum = 0;
+            let count = 0;
+            questionIds.forEach(id => {
+                const value = parseInt(document.querySelector(`input[name="${id}"]:checked`)?.value || 0);
+                if (!isNaN(value)) {
+                    sum += value;
+                    count++;
+                }
+            });
+            return count > 0 ? sum / count : 0;
+        }
+    </script> 

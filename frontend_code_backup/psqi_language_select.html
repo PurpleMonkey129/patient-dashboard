@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSQI Language Selection</title>
+    <style>
+        body { background-color: #f5f6fa; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .container { max-width: 400px; margin: 80px auto; background: #fff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); padding: 40px 30px; text-align: center; }
+        h1 { color: #2c3e50; margin-bottom: 30px; }
+        .lang-btn { width: 100%; padding: 15px; margin: 15px 0; font-size: 1.1em; border: none; border-radius: 5px; cursor: pointer; background: #3498db; color: #fff; transition: background 0.3s; }
+        .lang-btn:hover { background: #2980b9; }
+        .back-link { display: inline-block; margin-top: 20px; color: #3498db; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Pittsburgh Sleep Quality Index (PSQI)</h1>
+            <p>Please select your language</p>
+        </div>
+        <button class="lang-btn" onclick="goToForm('english')">ENGLISH</button>
+        <button class="lang-btn" onclick="goToForm('tamil')">TAMIL</button>
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+    <script>
+        function goToForm(lang) {
+            if (lang === 'english') {
+                window.location.href = 'psqi_english.html';
+            } else if (lang === 'tamil') {
+                window.location.href = 'psqi_tamil.html';
+            }
+        }
+    </script>
+</body>
+</html> 
