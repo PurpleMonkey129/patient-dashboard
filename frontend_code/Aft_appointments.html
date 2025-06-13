@@ -481,6 +481,7 @@
         };
 
         try {
+          console.log("Form data to be added:", appointmentData); // Debug log
           await addDoc(window.appointmentsCollection, appointmentData);
           form.reset();
           customDate.style.display = "none";
