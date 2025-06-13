@@ -160,25 +160,27 @@
       <button type="submit">Submit Appointment</button>
     </form>
 
-    <h2>Upcoming Appointments</h2>
-    <table id="appointmentsTable">
-      <thead>
-        <tr>
-          <th>Hospital ID</th>
-          <th>Name</th>
-          <th>Age</th>
-          <th>Gender</th>
-          <th>Phone</th>
-          <th>Test Type</th>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Appointments will appear here -->
-      </tbody>
-    </table>
+    <div class="upcoming-appointments">
+      <h2>Upcoming Appointments</h2>
+      <table id="upcomingAppointmentsTable">
+        <thead>
+          <tr>
+            <th>Hospital ID</th>
+            <th>Patient Name</th>
+            <th>Age</th>
+            <th>Gender</th>
+            <th>Phone</th>
+            <th>Test Type</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Upcoming appointments will be added here -->
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Firebase App (the core Firebase SDK) -->
@@ -391,12 +393,15 @@
             (snapshot) => {
               tableBody.innerHTML = ''; // Clear existing rows
               const upcomingTableBody = document.querySelector("#upcomingAppointmentsTable tbody");
+              console.log('Upcoming table body:', upcomingTableBody); // Debug log
+              
               if (upcomingTableBody) {
                 upcomingTableBody.innerHTML = ''; // Clear upcoming appointments
               }
               
               snapshot.forEach((doc) => {
                 const appointment = doc.data();
+                console.log('Processing appointment:', appointment); // Debug log
                 const row = createAppointmentRow(doc.id, appointment);
                 
                 // Add to main table
@@ -408,9 +413,14 @@
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
                   
+                  console.log('Appointment date:', appointmentDate); // Debug log
+                  console.log('Today:', today); // Debug log
+                  console.log('Is future date:', appointmentDate >= today); // Debug log
+                  
                   if (appointmentDate >= today) {
                     const upcomingRow = createAppointmentRow(doc.id, appointment);
                     upcomingTableBody.appendChild(upcomingRow);
+                    console.log('Added to upcoming appointments'); // Debug log
                   }
                 }
               });
