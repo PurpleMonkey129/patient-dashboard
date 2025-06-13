@@ -337,16 +337,8 @@
       }
     }
 
-    // Initialize Firebase and then set up the page
-    async function initializeApplication() {
-      await initializeFirebase();
-      if (isFirebaseInitialized) {
-        setupPage();
-      }
-    }
-
     // Initialize Firebase immediately
-    initializeApplication();
+    initializeFirebase();
   </script>
 
   <script type="module">
@@ -477,6 +469,14 @@
         customDate.style.display = dateSelect.value === "custom" ? "block" : "none";
       });
     }
+
+    // Wait for Firebase to be initialized
+    const checkFirebaseInterval = setInterval(() => {
+      if (window.isFirebaseInitialized) {
+        clearInterval(checkFirebaseInterval);
+        setupPage();
+      }
+    }, 100);
   </script>
 
 </body>
