@@ -460,10 +460,28 @@
       loadAppointments();
 
       // Form submission
+      console.log("Setting up form submission handler"); // Debug log
+      
+      // Test if form exists
+      if (!form) {
+        console.error("Form element not found!");
+      } else {
+        console.log("Form element found:", form);
+      }
+
       form.addEventListener("submit", async function (e) {
         console.log("Form submission started"); // Debug log
         e.preventDefault();
         
+        // Test if form fields exist
+        const hospitalIdField = document.getElementById("hospitalId");
+        const patientNameField = document.getElementById("patientName");
+        
+        console.log("Form fields found:", {
+          hospitalId: hospitalIdField ? "Found" : "Not found",
+          patientName: patientNameField ? "Found" : "Not found"
+        });
+
         if (!window.isFirebaseInitialized) {
           console.error("Firebase not initialized"); // Debug log
           alert("Please wait while the application initializes...");
@@ -516,6 +534,26 @@
           alert("Error adding appointment. Please check the console for details.");
         }
       });
+
+      // Add a test button to verify Firebase write works
+      const testButton = document.createElement('button');
+      testButton.textContent = 'Test Firebase Write';
+      testButton.style.marginTop = '10px';
+      testButton.onclick = async () => {
+        try {
+          const testData = {
+            test: "manual test",
+            createdAt: new Date().toISOString()
+          };
+          const docRef = await addDoc(window.appointmentsCollection, testData);
+          console.log("Test document written with ID: ", docRef.id);
+          alert("Test write successful! Check console for details.");
+        } catch (error) {
+          console.error("Test write error:", error);
+          alert("Test write failed. Check console for details.");
+        }
+      };
+      form.appendChild(testButton);
 
       // Date select handler
       dateSelect.addEventListener("change", () => {
