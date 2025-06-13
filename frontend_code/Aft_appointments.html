@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AFT Appointment Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <!-- Add Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxXgqXQYQYQYQYQYQYQYQYQYQYQYQYQYQY",
+      authDomain: "your-project.firebaseapp.com",
+      projectId: "your-project",
+      storageBucket: "your-project.appspot.com",
+      messagingSenderId: "your-messaging-sender-id",
+      appId: "your-app-id"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Make Firebase functions available globally
+    window.db = db;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.getDocs = getDocs;
+    window.deleteDoc = deleteDoc;
+    window.doc = doc;
+    window.updateDoc = updateDoc;
+    window.onSnapshot = onSnapshot;
+  </script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(to right, #2563eb, #1e40af);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    h2 {
+      margin-bottom: 1rem;
+      color: #111827;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1.2rem;
+      font-weight: 500;
+      color: #374151;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.4rem;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 1rem;
+      background-color: #f9fafb;
+    }
+    input[type="date"] {
+      background-color: #fff;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #1e40af;
+    }
+    table {
+      width: 100%;
+      margin-top: 2rem;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 0.9rem;
+      text-align: left;
+    }
+    th {
+      background-color: #f3f4f6;
+    }
+    td {
+      background-color: #ffffff;
+    }
+    .actions button {
+      margin-right: 6px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    .done-btn {
+      background-color: #10b981;
+      color: white;
+    }
+    .delete-btn {
+      background-color: #ef4444;
+      color: white;
+    }
+    .edit-btn {
+      background-color: #3b82f6;
+      color: white;
+    }
+    .done-row {
+      background-color: #e5f9f0;
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    AFT Patient Appointment Portal
+  </header>
+
+  <div class="container">
+    <h2>Book an Appointment</h2>
+    <form id="appointmentForm">
+      <label for="hospitalId">Hospital ID</label>
+      <input type="text" id="hospitalId" name="hospitalId" />
+
+      <label for="patientName">Patient Name</label>
+      <input type="text" id="patientName" name="patientName" />
+
+      <label for="age">Age</label>
+      <input type="number" id="age" name="age" />
+
+      <label for="gender">Gender</label>
+      <select id="gender" name="gender">
+        <option value="">Select</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" placeholder="10-digit number" />
+
+      <label for="testType">Test Type</label>
+      <select id="testType" name="testType">
+        <option value="">Select</option>
+        <option>AFT</option>
+        <option>Tilt Table</option>
+      </select>
+
+      <label for="date">Appointment Date</label>
+      <select id="date" name="date">
+        <option value="">Select</option>
+        <option value="Not given yet">Not given yet</option>
+        <option value="custom">Choose date...</option>
+      </select>
+      <input type="date" id="customDate" style="display:none; margin-top: 0.5rem;" />
+
+      <button type="submit">Submit Appointment</button>
+    </form>
+
+    <h2>Upcoming Appointments</h2>
+    <table id="appointmentsTable">
+      <thead>
+        <tr>
+          <th>Hospital ID</th>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Phone</th>
+          <th>Test Type</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Appointments will appear here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const form = document.getElementById("appointmentForm");
+    const tableBody = document.querySelector("#appointmentsTable tbody");
+    const dateSelect = document.getElementById("date");
+    const customDate = document.getElementById("customDate");
+
+    // Load appointments from Firebase
+    async function loadAppointments() {
+      const appointmentsRef = collection(db, "appointments");
+      onSnapshot(appointmentsRef, (snapshot) => {
+        tableBody.innerHTML = ''; // Clear existing rows
+        snapshot.forEach((doc) => {
+          const appointment = doc.data();
+          const row = createAppointmentRow(doc.id, appointment);
+          tableBody.appendChild(row);
+        });
+      });
+    }
+
+    // Create appointment row
+    function createAppointmentRow(id, appointment) {
+      const row = document.createElement("tr");
+      if (appointment.status === 'done') {
+        row.classList.add("done-row");
+      }
+      row.innerHTML = `
+        <td>${appointment.hospitalId || ''}</td>
+        <td>${appointment.name || ''}</td>
+        <td>${appointment.age || ''}</td>
+        <td>${appointment.gender || ''}</td>
+        <td>${appointment.phone || ''}</td>
+        <td>${appointment.testType || ''}</td>
+        <td>${appointment.date || ''}</td>
+        <td>${appointment.time || '09:00 AM'}</td>
+        <td class="actions">
+          <button class="done-btn" onclick="markDone('${id}', ${!appointment.status === 'done'})">
+            ${appointment.status === 'done' ? 'Undo' : 'Done'}
+          </button>
+          <button class="delete-btn" onclick="deleteAppointment('${id}')">Delete</button>
+          <button class="edit-btn" onclick="editAppointment('${id}')">Edit</button>
+        </td>
+      `;
+      return row;
+    }
+
+    dateSelect.addEventListener("change", () => {
+      customDate.style.display = dateSelect.value === "custom" ? "block" : "none";
+    });
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const appointmentData = {
+        hospitalId: document.getElementById("hospitalId").value || "",
+        name: document.getElementById("patientName").value || "",
+        age: document.getElementById("age").value || "",
+        gender: document.getElementById("gender").value || "",
+        phone: document.getElementById("phone").value || "",
+        testType: document.getElementById("testType").value || "",
+        date: dateSelect.value === "custom" ? customDate.value : dateSelect.value,
+        time: "09:00 AM",
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        await addDoc(collection(db, "appointments"), appointmentData);
+        form.reset();
+        customDate.style.display = "none";
+      } catch (error) {
+        console.error("Error adding appointment: ", error);
+        alert("Error adding appointment. Please try again.");
+      }
+    });
+
+    async function markDone(appointmentId, isDone) {
+      try {
+        const appointmentRef = doc(db, "appointments", appointmentId);
+        await updateDoc(appointmentRef, {
+          status: isDone ? 'done' : 'pending'
+        });
+      } catch (error) {
+        console.error("Error updating appointment: ", error);
+        alert("Error updating appointment. Please try again.");
+      }
+    }
+
+    async function deleteAppointment(appointmentId) {
+      if (confirm("Are you sure you want to delete this appointment?")) {
+        try {
+          await deleteDoc(doc(db, "appointments", appointmentId));
+        } catch (error) {
+          console.error("Error deleting appointment: ", error);
+          alert("Error deleting appointment. Please try again.");
+        }
+      }
+    }
+
+    async function editAppointment(appointmentId) {
+      try {
+        const appointmentRef = doc(db, "appointments", appointmentId);
+        const appointmentDoc = await getDoc(appointmentRef);
+        const appointment = appointmentDoc.data();
+
+        document.getElementById("hospitalId").value = appointment.hospitalId || '';
+        document.getElementById("patientName").value = appointment.name || '';
+        document.getElementById("age").value = appointment.age || '';
+        document.getElementById("gender").value = appointment.gender || '';
+        document.getElementById("phone").value = appointment.phone || '';
+        document.getElementById("testType").value = appointment.testType || '';
+
+        if (appointment.date === "Not given yet") {
+          dateSelect.value = "Not given yet";
+          customDate.style.display = "none";
+          customDate.value = "";
+        } else {
+          dateSelect.value = "custom";
+          customDate.style.display = "block";
+          customDate.value = appointment.date;
+        }
+
+        // Delete the old appointment
+        await deleteAppointment(appointmentId);
+      } catch (error) {
+        console.error("Error editing appointment: ", error);
+        alert("Error editing appointment. Please try again.");
+      }
+    }
+
+    // Load appointments when page loads
+    loadAppointments();
+  </script>
+
+</body>
+</html>

@@ -360,6 +360,60 @@
         window.handlePatientSelect = handlePatientSelect;
         window.selectPatient = selectPatient;
         window.openForm = openForm;
+
+        async function exportData() {
+            if (!selectedPatient) {
+                alert('Please select a patient first');
+                return;
+            }
+
+            const patientId = selectedPatient.id;
+            const patientName = selectedPatient.name;
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `${patientName}_${patientId}_${timestamp}.json`;
+
+            const exportData = {
+                patient: selectedPatient,
+                forms: {}
+            };
+
+            // Export all form collections
+            const formCollections = [
+                'patient_details',
+                'anthropometric',
+                'biomarkers',
+                'vitals',
+                'hrv',
+                'caft',
+                'brs',
+                'p300',
+                'reaction_time',
+                'psqi',
+                'aqlq'
+            ];
+
+            for (const formType of formCollections) {
+                const querySnapshot = await getDocs(collection(db, formType));
+                const formData = [];
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.id === patientId || data.patientId === patientId) {
+                        formData.push(data);
+                    }
+                });
+                exportData.forms[formType] = formData;
+            }
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
     </script>
     <style>
         * {
