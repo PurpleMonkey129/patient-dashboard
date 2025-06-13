@@ -408,20 +408,25 @@
                 tableBody.appendChild(row);
                 
                 // Add to upcoming appointments if not done and has a future date
-                if (upcomingTableBody && appointment.status !== 'done' && appointment.date !== 'Not given yet') {
-                  const appointmentDate = new Date(appointment.date);
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  
-                  console.log('Appointment date:', appointmentDate); // Debug log
-                  console.log('Today:', today); // Debug log
-                  console.log('Is future date:', appointmentDate >= today); // Debug log
-                  
-                  if (appointmentDate >= today) {
-                    const upcomingRow = createAppointmentRow(doc.id, appointment);
-                    upcomingTableBody.appendChild(upcomingRow);
-                    console.log('Added to upcoming appointments'); // Debug log
+                if (upcomingTableBody && appointment.status !== 'done') {
+                  console.log('Raw appointment.date:', appointment.date); // Debug log
+                  let appointmentDate;
+                  if (appointment.date && typeof appointment.date.toDate === 'function') {
+                    appointmentDate = appointment.date.toDate();
+                  } else {
+                    appointmentDate = new Date(appointment.date);
                   }
+                  console.log('Parsed appointmentDate:', appointmentDate); // Debug log
+                  // Fallback: show all non-done appointments for now
+                  const upcomingRow = createAppointmentRow(doc.id, appointment);
+                  upcomingTableBody.appendChild(upcomingRow);
+                  // Uncomment below to restore date filtering after debugging
+                  // const today = new Date();
+                  // today.setHours(0, 0, 0, 0);
+                  // if (appointmentDate >= today) {
+                  //   const upcomingRow = createAppointmentRow(doc.id, appointment);
+                  //   upcomingTableBody.appendChild(upcomingRow);
+                  // }
                 }
               });
             },
