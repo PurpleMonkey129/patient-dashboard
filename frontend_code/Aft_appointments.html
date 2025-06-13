@@ -217,6 +217,61 @@
     let retryCount = 0;
     const MAX_RETRIES = 3;
 
+    // Make functions available globally
+    window.markDone = async function(appointmentId, isDone) {
+      try {
+        const appointmentRef = doc(db, "appointments", appointmentId);
+        await updateDoc(appointmentRef, {
+          status: isDone ? 'done' : 'pending'
+        });
+      } catch (error) {
+        console.error("Error updating appointment: ", error);
+        alert("Error updating appointment. Please try again.");
+      }
+    };
+
+    window.deleteAppointment = async function(appointmentId) {
+      if (confirm("Are you sure you want to delete this appointment?")) {
+        try {
+          await deleteDoc(doc(db, "appointments", appointmentId));
+        } catch (error) {
+          console.error("Error deleting appointment: ", error);
+          alert("Error deleting appointment. Please try again.");
+        }
+      }
+    };
+
+    window.editAppointment = async function(appointmentId) {
+      try {
+        const appointmentRef = doc(db, "appointments", appointmentId);
+        const appointmentDoc = await getDoc(appointmentRef);
+        const appointment = appointmentDoc.data();
+
+        document.getElementById("hospitalId").value = appointment.hospitalId || '';
+        document.getElementById("patientName").value = appointment.name || '';
+        document.getElementById("age").value = appointment.age || '';
+        document.getElementById("gender").value = appointment.gender || '';
+        document.getElementById("phone").value = appointment.phone || '';
+        document.getElementById("testType").value = appointment.testType || '';
+
+        if (appointment.date === "Not given yet") {
+          dateSelect.value = "Not given yet";
+          customDate.style.display = "none";
+          customDate.value = "";
+        } else {
+          dateSelect.value = "custom";
+          customDate.style.display = "block";
+          customDate.value = appointment.date;
+        }
+
+        // Delete the old appointment
+        await window.deleteAppointment(appointmentId);
+      } catch (error) {
+        console.error("Error editing appointment: ", error);
+        alert("Error editing appointment. Please try again.");
+      }
+    };
+
     async function initializeFirebase() {
       try {
         app = initializeApp(firebaseConfig);
@@ -226,7 +281,7 @@
           localCache: persistentLocalCache({
             tabManager: persistentMultipleTabManager()
           }),
-          experimentalForceLongPolling: true, // Use long polling instead of WebSocket
+          experimentalForceLongPolling: true,
           experimentalAutoDetectLongPolling: true,
           ignoreUndefinedProperties: true
         });
@@ -262,7 +317,7 @@
         if (retryCount < MAX_RETRIES) {
           retryCount++;
           console.log(`Retrying Firebase initialization (${retryCount}/${MAX_RETRIES})...`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
           return initializeFirebase();
         }
         alert("Error initializing the application. Please refresh the page.");
@@ -281,6 +336,32 @@
       const tableBody = document.querySelector("#appointmentsTable tbody");
       const dateSelect = document.getElementById("date");
       const customDate = document.getElementById("customDate");
+
+      // Create appointment row
+      function createAppointmentRow(id, appointment) {
+        const row = document.createElement("tr");
+        if (appointment.status === 'done') {
+          row.classList.add("done-row");
+        }
+        row.innerHTML = `
+          <td>${appointment.hospitalId || ''}</td>
+          <td>${appointment.name || ''}</td>
+          <td>${appointment.age || ''}</td>
+          <td>${appointment.gender || ''}</td>
+          <td>${appointment.phone || ''}</td>
+          <td>${appointment.testType || ''}</td>
+          <td>${appointment.date || ''}</td>
+          <td>${appointment.time || '09:00 AM'}</td>
+          <td class="actions">
+            <button class="done-btn" onclick="markDone('${id}', ${!appointment.status === 'done'})">
+              ${appointment.status === 'done' ? 'Undo' : 'Done'}
+            </button>
+            <button class="delete-btn" onclick="deleteAppointment('${id}')">Delete</button>
+            <button class="edit-btn" onclick="editAppointment('${id}')">Edit</button>
+          </td>
+        `;
+        return row;
+      }
 
       // Load appointments from Firebase
       async function loadAppointments() {
@@ -345,8 +426,37 @@
         alert("Error initializing the application. Please refresh the page.");
       }
 
-      // Rest of your existing code...
-      // ... (keep all the other functions as they are)
+      // Form submission
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const appointmentData = {
+          hospitalId: document.getElementById("hospitalId").value || "",
+          name: document.getElementById("patientName").value || "",
+          age: document.getElementById("age").value || "",
+          gender: document.getElementById("gender").value || "",
+          phone: document.getElementById("phone").value || "",
+          testType: document.getElementById("testType").value || "",
+          date: dateSelect.value === "custom" ? customDate.value : dateSelect.value,
+          time: "09:00 AM",
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+
+        try {
+          await addDoc(window.appointmentsCollection, appointmentData);
+          form.reset();
+          customDate.style.display = "none";
+        } catch (error) {
+          console.error("Error adding appointment: ", error);
+          alert("Error adding appointment. Please try again.");
+        }
+      });
+
+      // Date select handler
+      dateSelect.addEventListener("change", () => {
+        customDate.style.display = dateSelect.value === "custom" ? "block" : "none";
+      });
     });
   </script>
 
