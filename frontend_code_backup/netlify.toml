@@ -2,13 +2,11 @@
   publish = "."
   command = ""
 
-# Handle SPA routing - only redirect non-HTML paths
+# Handle SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
-  conditions = {Path = ["!/**/*.html"]}
 
 # Basic security headers
 [[headers]]
